@@ -50,11 +50,6 @@ export interface DeviceItem {
   update(state: string): object;
 }
 
-export enum Command {
-  SET_LIGHT = 'L',
-  END = 'E',
-}
-
 // Logger
 
 export interface Logger {

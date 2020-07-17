@@ -20,10 +20,10 @@ export default {
   },
   methods: {
     on() {
-      fetch('http://192.168.100.29:3000/lights/LIGHT_0000/set/1');
+      fetch('http://192.168.100.33:3000/lights/LIGHT_000/set/ON');
     },
     off() {
-      fetch('http://192.168.100.29:3000/lights/LIGHT_0000/set/0');
+      fetch('http://192.168.100.33:3000/lights/LIGHT_000/set/OFF');
     },
   },
 };

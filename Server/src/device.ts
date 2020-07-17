@@ -1,31 +1,5 @@
-import * as SerialPort from 'serialport';
-const ReadLine = require('@serialport/parser-readline');
-import { ItemId, Device, SwitchState, Logger, Command } from "./utils";
-
-class SerialCommunicator {
-  port: SerialPort;
-  parser: SerialPort.parsers.Readline;
-  logger: Logger;
-
-  constructor(logger: Logger, serialPath: string, baudRate: number) {
-    this.logger = logger;
-    this.port = new SerialPort(serialPath, { baudRate }, (error) => {
-      this.logger.error(`Cannot open serial port ${serialPath} (${error})`);
-    });
-    this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
-
-    this.port.on('open', () => {
-      this.logger.info('SerialPort open');
-    });
-    this.parser.on('data', (data) => {
-      this.logger.info('Received data: ' + data);
-    });
-  }
-
-  public send(command: Command, ...args: (string|number)[]): void {
-    this.port.write(`${command}${args.join(':')}${Command.END}`);
-  }
-}
+import SerialCommunicator, { MessageType } from './SerialCommunicator';
+import { ItemId, Device, SwitchState, Logger } from "./utils";
 
 export class RPI implements Device {
   logger: Logger;
@@ -38,7 +12,7 @@ export class RPI implements Device {
   updateLight(id: ItemId, state: SwitchState): void {
     const index = id.index;
     const stateValue = state.toInt();
-    this.serialCommunicator.send(Command.SET_LIGHT, index, stateValue);
+    this.serialCommunicator.send(MessageType.LIGHT_SET, index, stateValue);
   }
   public connectArduino(serialPath: string, baudRate: number): void {
     this.serialCommunicator = new SerialCommunicator(this.logger, serialPath, baudRate);
