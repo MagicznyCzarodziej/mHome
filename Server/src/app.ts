@@ -1,4 +1,6 @@
 import * as Express from 'express';
+import * as cors from 'cors';
+
 import { Logger } from './utils';
 
 import 'reflect-metadata';
@@ -12,7 +14,7 @@ export default class App {
 
   constructor(port: number) {
     this.logger = new Logger('EXPRESS');
-    this.api = Express();
+    this.api = Express().use(cors());
 
     useExpressServer(this.api, {
       controllers: [__dirname + '/api/controllers/*.js'],
