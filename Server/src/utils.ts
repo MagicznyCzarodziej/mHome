@@ -10,9 +10,15 @@ export class ItemId {
   }
 
   public static fromString(id: string): ItemId {
+    if (!id) throw new Error('No id string');
+    const idRegex = new RegExp('^[A-Z]+_\\d{' + this.INDEX_LENGTH +'}$');
+    
+    if (!id.match(idRegex)) throw new Error('Invalid id string');
+
     const idParts = id.split('_');
     const type = idParts[0];
     const index = Number(idParts[1]);
+    
     return new ItemId(type, index);
   }
 
@@ -28,6 +34,8 @@ export class SwitchState {
   constructor (private isOn: boolean) { }
 
   public static fromString(state: string): SwitchState {
+    if (!state) throw new Error('No state string');
+    
     if (state.toUpperCase() === 'ON' || Number(state) === 1) return new SwitchState(true);
     return new SwitchState(false);
   }

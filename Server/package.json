@@ -11,6 +11,8 @@
     "watch": "gulp watch"
   },
   "dependencies": {
+    "@types/socket.io": "^2.1.8",
+    "@types/socket.io-client": "^1.4.33",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "cors": "^2.8.5",
@@ -19,6 +21,9 @@
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.8.1",
     "serialport": "^8.0.7",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "ts-node": "^8.10.2",
     "typedi": "^0.8.0"
   },
   "devDependencies": {

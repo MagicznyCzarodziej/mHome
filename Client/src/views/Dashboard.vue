@@ -18,12 +18,27 @@ export default {
     DefaultLayout,
     Box,
   },
+  
+  sockets: {
+    'lights/update': function (data) {
+        console.log(data);
+    }
+  },
+
   methods: {
     on() {
-      fetch('http://192.168.100.33:3000/lights/LIGHT_000/set/ON');
+      // fetch('http://192.168.100.33:3000/lights/LIGHT_000/set/ON');
+      this.$socket.emit('lights/set', {
+        element: 'LIGHT_000',
+        state: 'ON',
+      });
     },
     off() {
-      fetch('http://192.168.100.33:3000/lights/LIGHT_000/set/OFF');
+      // fetch('http://192.168.100.33:3000/lights/LIGHT_000/set/OFF');
+      this.$socket.emit('lights/set', {
+        element: 'LIGHT_000',
+        state: 'OFF',
+      });
     },
   },
 };
