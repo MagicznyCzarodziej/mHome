@@ -147,12 +147,14 @@ void processMessage() {
   element[3] = '\0';
   value[3] = '\0';
   auxilary[3] = '\0';
-
+  
+  /* Debug
   Serial.print(command);
   Serial.print(element);
   Serial.print(value);
   Serial.println(auxilary);
-
+  */
+  
   int id = atoi(element);
   int val = atoi(value);
 
