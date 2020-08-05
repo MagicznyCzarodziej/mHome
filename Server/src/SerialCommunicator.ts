@@ -19,14 +19,14 @@ export default class SerialCommunicator {
       this.logger.info('SerialPort open');
     });
     this.parser.on('data', (data) => {
-      this.logger.info('Received data: ' + data);
+      this.logger.info('Received message: ' + data);
     });
   }
 
   public send(
     messageType: MessageType,
     element: number,
-    value: number,
+    value: number = 0,
     auxilary: number = 0
   ): void {
     let message: string = MessageType.CMD_START;
@@ -36,6 +36,8 @@ export default class SerialCommunicator {
     message += auxilary.toString().padStart(3, '0');
     message += MessageType.CMD_END;
     
+    this.logger.info('Sending message: ' + message)
+
     this.port.write(message);
   }
 }

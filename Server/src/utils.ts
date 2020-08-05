@@ -45,19 +45,6 @@ export class SwitchState {
   }
 }
 
-// Device
-
-export interface Device {
-  updateLight(id: ItemId, state: SwitchState): void;
-}
-
-export interface DeviceItem {
-  device: Device;
-  id: ItemId;
-  pin: number;
-  update(state: string): object;
-}
-
 // Logger
 
 export interface Logger {
@@ -75,4 +62,17 @@ export class Logger implements Logger {
   error(message: string): void {
     console.log(`[ERROR] ${this.author}: ${message}`);
   }
+}
+
+export interface MessageHandler {
+  execute(data: any): void;
+}
+
+export enum SocketEvent {
+  /** [to SERVER] Set light state */
+  LIGHTS_SET = 'lights/set',
+  /** [to SERVER] Request light state */
+  LIGHTS_REQUEST = 'lights/request',
+  /** [to CLIENT] Notify about updated light(s) */
+  LIGHTS_UPDATE = 'lights/update',
 }

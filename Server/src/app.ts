@@ -1,10 +1,10 @@
 import * as Express from 'express';
 import * as cors from 'cors';
-import * as socketIo from 'socket.io';
 import * as socketIoClient from 'socket.io-client';
 import { Server } from 'http';
 
-import { handleSockets } from './sockets';
+import SocketHandler from './sockets';
+import SerialCommunicator from './SerialCommunicator';
 import { Logger } from './utils';
 
 import 'reflect-metadata';
@@ -21,10 +21,9 @@ export default class App {
 
     this.api = Express().use(cors());
     const server = new Server(this.api);
-    const io = socketIo(server);
-
-    handleSockets(io, this.logger);
-
+    
+    new SocketHandler(server, new Logger('SocketHandler'));
+    
     // Health check endpoint
     this.api.get('/', (req, res) => {
       res.send({

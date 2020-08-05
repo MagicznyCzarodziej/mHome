@@ -1,30 +1,36 @@
 import Container from 'typedi';
-import { Logger, Device, ItemId, SwitchState } from '../utils';
+import { Server } from 'http';
+import * as socketIo from 'socket.io';
 
-export function handleSockets(io: SocketIO.Server, logger: Logger) {
-  io.on('connection', (socket) => {
-    logger.info(
-      `Socket.io client connected (ID: ${socket.id} IP: ${socket.handshake.address})`
-    );
-  
-    socket.on('lights/set', (data: any, callback) => {
-      try {
-        const device: Device = Container.get('Device');
-        const id = ItemId.fromString(data.element);
-        const state = SwitchState.fromString(data.state);
+import { Logger, SocketEvent, MessageHandler } from '../utils';
+import SerialCommunicator from '../SerialCommunicator';
+
+import LightsSetHandler from './handlers/LightsSet';
+import LightsRequestHandler from './handlers/LightsRequest';
+
+export default class SocketHandler {
+  io: socketIo.Server;
+  logger: Logger;
+  serialCommunicator: SerialCommunicator;
+
+  constructor(httpServer: Server, logger: Logger) {
+    this.io = socketIo(httpServer);
+    this.logger = logger;
+    this.serialCommunicator = Container.get(SerialCommunicator);
+
+    const handlers = new Map<SocketEvent, MessageHandler>();
     
-        device.updateLight(id, state);
-        
-        const message = {
-          element: data.element,
-          state: data.state,
-        };
-    
-        if (callback) callback();
-        io.emit('lights/update', message);
-      } catch (error) {
-        if (callback) callback(error.message)
-      }
+    handlers.set(SocketEvent.LIGHTS_SET, new LightsSetHandler(this.serialCommunicator, this.io));
+    handlers.set(SocketEvent.LIGHTS_REQUEST, new LightsRequestHandler(this.serialCommunicator));
+
+    this.registerMessageHandlers(handlers);
+  }
+
+  registerMessageHandlers(handlers: Map<SocketEvent, MessageHandler>) {
+    this.io.on('connection', (socket) => {
+      handlers.forEach((handler, eventName) => {
+        socket.on(eventName, handler.execute.bind(handler));
+      });
     });
-  });
+  }
 }
