@@ -1,3 +1,9 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+#define RELAY_ON LOW
+#define RELAY_OFF HIGH
+
 /* ------------------------------------
       COMMANDS
 ------------------------------------ */
@@ -10,6 +16,7 @@
 #define CMD_LIGHT_RESPONSE 'L'
 
 #define CMD_THERMOMETER_REQUEST 'T'
+#define CMD_THERMOMETER_RESPONSE 'T'
 
 #define CMD_BLINDS_SET 'B'
 #define CMD_BLINDS_REQUEST 'B'
@@ -60,41 +67,46 @@ const byte LIGHTS_SIZE = 2;
 const byte THERMOMETERS_SIZE = 2;
 const byte REEDS_SIZE = 2;
 
+const byte ONE_WIRE_BUS = 2; // OneWire pin
+#define TEMPERATURE_PRECISION 9
+
 byte lights[LIGHTS_SIZE];             // LIGHTS //TODO: Change this to lightsPin
 int lightsValue[LIGHTS_SIZE];
-byte thermometers[THERMOMETERS_SIZE];  // THEREMOMETERS
+byte thermometers[THERMOMETERS_SIZE][8] = {
+  { 0x28, 0x37, 0xF6, 0xBC, 0x8, 0x0, 0x0, 0xEA }, // Wenętrzny
+  { 0x28, 0x7, 0xEC, 0xBC, 0x8, 0x0, 0x0, 0xC6 }   // Zewnętrzny  
+}; 
+// THEREMOMETERS
 byte reeds[REEDS_SIZE];                // REED SWTICH
 
 /* ------------------------------------
       SETUP
 ------------------------------------ */
 
+// Setup a oneWire instance to communicate with any OneWire devices
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+
 void setup() {
   Serial.begin(9600);
 
-  /* ---- ASSIGN ELEMENTS TO PINS ---- */
-  // Change array size in the section above (PINS GROUPS) before adding new elements
-
+  // LIGHTS
   lights[0] = 3; // LED
   lights[1] = 4; // Some other light
 
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+
   for (byte i = 0; i < LIGHTS_SIZE; i++) {
     lightsValue[i] = 0;
-    pinMode(lights[i], OUTPUT);
+    digitalWrite(lights[i], RELAY_OFF);
   }
 
-  // lights[2] = 5; // Salon/Żyrandol/1
-  // lights[3] = 6; // Salon/Żyrandol/2
-  // lights[4] = 7; // Salon/Kinkiet
-  // lights[5] = 8; // Kuchnia/1
-  // lights[6] = 9; // Kuchnia/2
-  // ...
-  // lights[28] = 31; // 
-
-  // THEREMOMETERS PINS
-  // thermometers[0] = 10; // Salon
-  // thermometers[1] = 11; // Kuchnia
-  // thermometers[2] = 12; // Dwór/1
+  // THERMOMETERS
+  sensors.begin();
+  for (byte i = 0; i < THERMOMETERS_SIZE; i++) {
+    sensors.setResolution(thermometers[i], TEMPERATURE_PRECISION);
+  }
 
   // REED SWITCHES PINS
   // reed[0] = 13; // Salon/Okno/1 (Północ)
@@ -147,20 +159,14 @@ void processMessage() {
   element[3] = '\0';
   value[3] = '\0';
   auxilary[3] = '\0';
-  
-  /* Debug
-  Serial.print(command);
-  Serial.print(element);
-  Serial.print(value);
-  Serial.println(auxilary);
-  */
-  
+
   int id = atoi(element);
   int val = atoi(value);
 
   switch (command) {
     case CMD_LIGHT_SET: setLight(id, val); break;
     case CMD_LIGHT_QUERY: requestLight(id); break;
+    case CMD_THERMOMETER_REQUEST: requestThermometer(id); break;
     default: sendMessage(CMD_ERROR, 0, 0, 0);
   }
 }
@@ -183,7 +189,6 @@ void requestLight(int id) {
     return;
   }
 
-  // int value = digitalRead(id); wrong
   int value = lightsValue[id];
   sendMessage(CMD_LIGHT_RESPONSE, id, value, 0);
 }
@@ -199,7 +204,20 @@ void setLight(int id, int value) {
   }
   
   lightsValue[id] = value;
-  bool state = value == 1 ? HIGH : LOW;
+  bool state = value == 1 ? RELAY_ON : RELAY_OFF;
   digitalWrite(lights[id], state);
   sendMessage(CMD_LIGHT_RESPONSE, id, value, 0);
+}
+
+/* ---- THERMOMETERS ---- */
+
+void requestThermometer(int id) {
+  if (id >= THERMOMETERS_SIZE) { // Invalid element ID
+    sendMessage(CMD_ERROR, id, 0, 0);
+    return;
+  }
+  
+  sensors.requestTemperatures();
+  float tempC = sensors.getTempC(thermometers[id]);
+  sendMessage(CMD_THERMOMETER_RESPONSE, id, tempC, 0);
 }
