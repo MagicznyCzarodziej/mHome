@@ -2,8 +2,9 @@
   <DefaultLayout icon="th">
     <template #header>Dashboard</template>
     <Box>
-      <button @click="on">ON</button>
-      <button @click="off">OFF</button>
+      <button @click="toggle" >{{state?'OFF':'ON'}}</button>
+      
+      {{ state }}
     </Box>
   </DefaultLayout>
 </template>
@@ -18,11 +19,16 @@ export default {
     DefaultLayout,
     Box,
   },
-  
+  data() {
+    return {
+      state: 0,
+    }
+  },
   sockets: {
     'lights/update': function (data) {
         console.log(data);
-    }
+        this.state = data.value;
+    },
   },
 
   methods: {
@@ -40,6 +46,13 @@ export default {
         state: 'OFF',
       });
     },
+    toggle() {
+
+      this.$socket.emit('lights/set', {
+        element: 'LIGHT_000',
+        state: this.state?'OFF':'ON',
+      });
+    }
   },
 };
 </script>

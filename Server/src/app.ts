@@ -4,7 +4,6 @@ import * as socketIoClient from 'socket.io-client';
 import { Server } from 'http';
 
 import SocketHandler from './sockets';
-import SerialCommunicator from './SerialCommunicator';
 import { Logger } from './utils';
 
 import 'reflect-metadata';
