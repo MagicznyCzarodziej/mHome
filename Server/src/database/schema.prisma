@@ -1,0 +1,84 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:mhome.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+//
+
+model Group {
+  id           String        @id
+  name         String
+  description  String?
+  icon         String?
+  lights       Light[]
+  thermometers Thermometer[]
+  blinds       Blinds[]
+  reeds        Reed[]
+}
+
+// Elements
+
+model Light {
+  id          String   @id
+  name        String
+  description String?
+  state       String   @default("OFF") /// ON or OFF
+  group       Group?   @relation(fields: [groupId], references: [id])
+  groupId     String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Thermometer {
+  id                String        @id
+  name              String
+  description       String?
+  latestTemperature Float
+  temperatures      Temperature[]
+  group             Group?        @relation(fields: [groupId], references: [id])
+  groupId           String?
+}
+
+model Blinds {
+  id          String   @id
+  name        String
+  description String?
+  state       Int /// 0-100 where 0 is fully closed and 100 is fully open
+  group       Group?   @relation(fields: [groupId], references: [id])
+  groupId     String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Reed {
+  id          String   @id
+  name        String
+  description String?
+  state       Int /// 0-100 where 0 is fully closed and 100 is fully open
+  group       Group?   @relation(fields: [groupId], references: [id])
+  groupId     String?
+  updatedAt   DateTime @updatedAt
+}
+
+//
+
+model Temperature {
+  id            Int         @id @default(autoincrement())
+  value         Float
+  datetime      DateTime    @default(now())
+  thermometer   Thermometer @relation(fields: [thermometerId], references: [id])
+  thermometerId String
+}
+
+//
+
+/// Log every client connection
+model Connection {
+  id             Int       @id
+  ip             String
+  client         String
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+}
