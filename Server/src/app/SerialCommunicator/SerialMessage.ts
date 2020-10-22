@@ -6,9 +6,17 @@ export enum SerialMessageType {
   LIGHT_SET = 'S',
   LIGHT_REQUEST = 'L',
   LIGHT_RESPONSE = 'L',
+  /** Request reading new temperature from Arduino */
   THERMOMETER_REQUEST = 'T',
+  /** Message from Arduino with new temperature reading */
   THERMOMETER_RESPONSE = 'T',
 }
+
+export const SerialMessageConstants = {
+  auxilary: {
+    TEMPERATURE_BELOW_ZERO: 1,
+  },
+};
 
 export class SerialMessage {
   constructor(

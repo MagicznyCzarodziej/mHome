@@ -216,8 +216,10 @@ void requestThermometer(int id) {
     sendMessage(CMD_ERROR, id, 0, 0);
     return;
   }
-  
+
   sensors.requestTemperatures();
   float tempC = sensors.getTempC(thermometers[id]);
-  sendMessage(CMD_THERMOMETER_RESPONSE, id, tempC, 0);
+  int intTempC = tempC * 10; // Multiply by 10 to preserve decimal value
+  int belowZeroFlag = tempC < 0 ? 1 : 0;
+  sendMessage(CMD_THERMOMETER_RESPONSE, id, intTempC, belowZeroFlag);
 }
