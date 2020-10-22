@@ -1,3 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-export const database = new PrismaClient();
+import { PrismaClient } from '@prisma/client';
+const database = new PrismaClient();
+database.$connect();
+export { database };

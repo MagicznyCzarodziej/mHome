@@ -8,6 +8,10 @@
 
 `yarn run db:generate`
 
+`yarn run prisma migrate save --experimental` to create migration
+
+`yarn run prisma migrate up --experimental` to create tables in database
+
 Optional: Insert default data (groups, elements, etc.) to database
 `yarn run db:seed` WARNING! This will erase all data from existing database (states, history, logs, etc.)
 
