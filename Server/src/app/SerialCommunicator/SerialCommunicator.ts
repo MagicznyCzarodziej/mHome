@@ -10,37 +10,51 @@ import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObs
 export class SerialCommunicator {
   port: SerialPort;
   parser: SerialPort.parsers.Readline;
-  logger: Logger;
   observers: SerialCommunicatorObserver[] = [];
 
-  constructor(logger: Logger, serialPath: string, baudRate: number) {
-    this.logger = logger;
-    this.port = new SerialPort(serialPath, { baudRate }, (error) => {
-      if (error)
-        this.logger.error(`Cannot open serial port ${serialPath} (${error})`);
-    });
-    this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
+  constructor(
+    private logger: Logger,
+    private serialPath: string,
+    private baudRate: number
+  ) {}
 
-    this.port.on('open', () => {
-      this.logger.info('SerialPort open');
-    });
-
-    // Received data from serial port
-    this.parser.on('data', (data: string) => {
-      this.logger.info(
-        `Received message: ${chalk.magenta(
-          SerialMessage.fromString(data).toString(true)
-        )} (original: ${data.trim()})`
+  public async init() {
+    return new Promise((resolve, reject) => {
+      this.port = new SerialPort(
+        this.serialPath,
+        { baudRate: this.baudRate },
+        (error) => {
+          if (error)
+            this.logger.error(
+              `Cannot open serial port ${this.serialPath} (${error})`
+            );
+          reject();
+        }
       );
+      this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
 
-      // Notify all observers
-      try {
-        const message = SerialMessage.fromString(data);
-        this.notify(message);
-      } catch (error) {
-        this.logger.error(error);
-        this.logger.error('Invalid message: ' + data);
-      }
+      this.port.on('open', () => {
+        this.logger.info('SerialPort open');
+        resolve();
+      });
+
+      // Received data from serial port
+      this.parser.on('data', (data: string) => {
+        this.logger.info(
+          `Received message: ${chalk.magenta(
+            SerialMessage.fromString(data).toString(true)
+          )} (original: ${data.trim()})`
+        );
+
+        // Notify all observers
+        try {
+          const message = SerialMessage.fromString(data);
+          this.notify(message);
+        } catch (error) {
+          this.logger.error(error);
+          this.logger.error('Invalid message: ' + data);
+        }
+      });
     });
   }
 

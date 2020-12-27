@@ -8,7 +8,7 @@ import {
   faSlidersH,
   faCircle,
   faCheck,
-  faExclamationTriangle,
+  faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
@@ -17,8 +17,7 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 
-library.add(faTh, faThermometerHalf, faSlidersH,
-  faCircle, faCheck, faExclamationTriangle);
+library.add(faTh, faThermometerHalf, faSlidersH, faCircle, faCheck, faExclamationTriangle);
 
 Vue.component('Icon', FontAwesomeIcon);
 
@@ -26,12 +25,14 @@ Vue.config.productionTip = false;
 
 store.loadFromLocalStorage();
 
-Vue.use(new VueSocketIO({
-  debug: true,
-  connection: 'http://192.168.100.33:3000',
-}));
+Vue.use(
+  new VueSocketIO({
+    debug: true,
+    connection: 'http://192.168.1.133:3000'
+  })
+);
 
 new Vue({
   router,
-  render: (h) => h(App),
+  render: h => h(App)
 }).$mount('#app');

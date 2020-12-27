@@ -9,6 +9,7 @@ import Container from 'typedi';
 import { StandardLogger, Logger } from 'app/utils/Logger';
 import { MainController } from './controllers/MainController';
 import { SocketMessage } from 'app/sockets/SocketMessage';
+import { router } from 'app/routes';
 
 useContainer(Container);
 
@@ -29,6 +30,8 @@ export default class App {
         status: 'running',
       });
     });
+
+    this.api.use(router);
 
     // Handle messages without client
     this.api.get('/msg', (req, res) => {

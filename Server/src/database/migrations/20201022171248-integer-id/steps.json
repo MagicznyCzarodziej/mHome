@@ -1,0 +1,35 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "UpdateField",
+      "model": "Light",
+      "field": "id",
+      "type": "Int"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Thermometer",
+      "field": "id",
+      "type": "Int"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Blinds",
+      "field": "id",
+      "type": "Int"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Reed",
+      "field": "id",
+      "type": "Int"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Temperature",
+      "field": "thermometerId",
+      "type": "Int"
+    }
+  ]
+}

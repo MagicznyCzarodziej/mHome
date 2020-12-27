@@ -1,5 +1,5 @@
-#include <OneWire.h>
 #include <DallasTemperature.h>
+#include <OneWire.h>
 
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
@@ -40,8 +40,10 @@ void resetMessage() {
 
 String toStringWithLeadingZeros(int number) {
   String str;
-  if (number < 10) str = "00";
-  else if (number < 100) str = "0";
+  if (number < 10)
+    str = "00";
+  else if (number < 100)
+    str = "0";
   str.concat(String(number));
   return str;
 }
@@ -70,14 +72,14 @@ const byte REEDS_SIZE = 2;
 const byte ONE_WIRE_BUS = 2; // OneWire pin
 #define TEMPERATURE_PRECISION 9
 
-byte lights[LIGHTS_SIZE];             // LIGHTS //TODO: Change this to lightsPin
+byte lights[LIGHTS_SIZE]; // LIGHTS //TODO: Change this to lightsPin
 int lightsValue[LIGHTS_SIZE];
 byte thermometers[THERMOMETERS_SIZE][8] = {
-  { 0x28, 0x37, 0xF6, 0xBC, 0x8, 0x0, 0x0, 0xEA }, // Wenętrzny
-  { 0x28, 0x7, 0xEC, 0xBC, 0x8, 0x0, 0x0, 0xC6 }   // Zewnętrzny  
-}; 
+    {0x28, 0x37, 0xF6, 0xBC, 0x8, 0x0, 0x0, 0xEA}, // Wenętrzny
+    {0x28, 0x7, 0xEC, 0xBC, 0x8, 0x0, 0x0, 0xC6}   // Zewnętrzny
+};
 // THEREMOMETERS
-byte reeds[REEDS_SIZE];                // REED SWTICH
+byte reeds[REEDS_SIZE]; // REED SWTICH
 
 /* ------------------------------------
       SETUP
@@ -112,7 +114,6 @@ void setup() {
   // reed[0] = 13; // Salon/Okno/1 (Północ)
   // reed[1] = 14; // Salon/Okno/2 (Północ)
   // reed[2] = 15; // Kuchnia/Okno/1
-
 }
 
 /* ------------------------------------
@@ -123,7 +124,9 @@ void loop() {
   if (Serial.available() > 0) {
     char received = Serial.read();
     switch (received) {
-      case '>': messageIndex = 0; break; // TODOL: Check if previous msg was correct
+      case '>':
+        messageIndex = 0;
+        break; // TODOL: Check if previous msg was correct
       case '<':
         if (messageIndex != MESSAGE_LENGTH) { // Message too short
           invalidMessage();
@@ -131,8 +134,8 @@ void loop() {
         }
         processMessage();
         break;
-      default: 
-        if (messageIndex > MESSAGE_LENGTH-1) { // Exceded message length, invalid message
+      default:
+        if (messageIndex > MESSAGE_LENGTH - 1) { // Exceded message length, invalid message
           invalidMessage();
           return;
         }
@@ -151,7 +154,7 @@ void processMessage() {
   char element[4];
   char value[4];
   char auxilary[4];
-  
+
   strncpy(element, messageBuffer + 1, 3);
   strncpy(value, messageBuffer + 4, 3);
   strncpy(auxilary, messageBuffer + 7, 3);
@@ -164,10 +167,17 @@ void processMessage() {
   int val = atoi(value);
 
   switch (command) {
-    case CMD_LIGHT_SET: setLight(id, val); break;
-    case CMD_LIGHT_QUERY: requestLight(id); break;
-    case CMD_THERMOMETER_REQUEST: requestThermometer(id); break;
-    default: sendMessage(CMD_ERROR, 0, 0, 0);
+    case CMD_LIGHT_SET:
+      setLight(id, val);
+      break;
+    case CMD_LIGHT_QUERY:
+      requestLight(id);
+      break;
+    case CMD_THERMOMETER_REQUEST:
+      requestThermometer(id);
+      break;
+    default:
+      sendMessage(CMD_ERROR, 0, 0, 0);
   }
 }
 
@@ -202,7 +212,7 @@ void setLight(int id, int value) {
     sendMessage(CMD_ERROR, 0, value, 0);
     return;
   }
-  
+
   lightsValue[id] = value;
   bool state = value == 1 ? RELAY_ON : RELAY_OFF;
   digitalWrite(lights[id], state);

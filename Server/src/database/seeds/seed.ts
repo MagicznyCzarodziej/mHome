@@ -30,7 +30,7 @@ const groups: GroupCreateInput[] = [
 
 const lights: LightCreateInput[] = [
   {
-    id: 'LIGHT_000',
+    id: 0,
     name: 'Światełko 0',
     description: 'Jakieś światło DEF ON',
     state: 'ON',
@@ -41,7 +41,7 @@ const lights: LightCreateInput[] = [
     },
   },
   {
-    id: 'LIGHT_001',
+    id: 1,
     name: 'Światełko 1',
     description: 'Jakieś światło DEF OFF',
     state: 'OFF',
@@ -55,7 +55,7 @@ const lights: LightCreateInput[] = [
 
 const thermometers: ThermometerCreateInput[] = [
   {
-    id: 'THERMOMETER_000',
+    id: 0,
     name: 'Termometr wewnętrzny',
     latestTemperature: 0,
     group: {
@@ -65,7 +65,7 @@ const thermometers: ThermometerCreateInput[] = [
     },
   },
   {
-    id: 'THERMOMETER_001',
+    id: 1,
     name: 'Termometr zewnętrzny',
     latestTemperature: 0,
     group: {
@@ -79,7 +79,7 @@ const thermometers: ThermometerCreateInput[] = [
 export async function seed() {
   try {
     // Groups
-    Promise.all(
+    await Promise.all(
       groups.map((group) =>
         database.group.create({
           data: group,

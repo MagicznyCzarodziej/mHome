@@ -5,8 +5,8 @@ import { database } from 'database/database';
 export class LightController {
   constructor(private io: SocketIO.Server) {}
 
-  switch(id: string, state: OnOff) {
-    database.light.update({
+  async switch(id: number, state: OnOff) {
+    await database.light.update({
       where: {
         id,
       },

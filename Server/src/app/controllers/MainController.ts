@@ -12,10 +12,10 @@ import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObs
 import { LightController } from 'app/controllers/LightController';
 import { ThermometerController } from 'app/controllers/ThermometerController';
 import { SocketMessage } from 'app/sockets/SocketMessage';
-import { ItemId } from 'app/utils/ItemId';
 import { SwitchState } from 'app/utils/SwitchState';
-import { StandardLogger, Logger } from 'app/utils/Logger';
-import * as script from 'app/scripts/script';
+import { Logger } from 'app/utils/Logger';
+import { decodeTemperature } from 'app/SerialCommunicator/utils';
+import { registerScripts } from 'app/scripts';
 
 export class MainController implements SerialCommunicatorObserver {
   private io: SocketIO.Server;
@@ -30,18 +30,19 @@ export class MainController implements SerialCommunicatorObserver {
     this.lightController = new LightController(this.io);
     this.thermometerController = new ThermometerController(this.io);
     this.handleSockets();
-    script.register(new StandardLogger('Scripts'));
+    registerScripts();
   }
 
   handleSerialMessage(message: SerialMessage) {
     switch (message.type) {
       case SerialMessageType.THERMOMETER_RESPONSE: {
-        const thermometerId = `THERMOMETER_${message.element}`;
-        this.thermometerController.addTemperature(thermometerId, message.value);
+        const thermometerId = message.element;
+        const temperature = decodeTemperature(message.value, message.auxilary);
+        this.thermometerController.addTemperature(thermometerId, temperature);
         break;
       }
       case SerialMessageType.LIGHT_RESPONSE: {
-        const lightId = `LIGHT_${message.element}`;
+        const lightId = message.element;
         const state = SwitchState.parse(message.value).toString();
         this.lightController.switch(lightId, state);
         break;
@@ -54,8 +55,7 @@ export class MainController implements SerialCommunicatorObserver {
       // Set light state
       socket.on(SocketMessage.toServer.LIGHT_SET, (data) => {
         try {
-          const { id } = data;
-          const element = ItemId.fromString(id).index;
+          const element = data.id;
           const state = SwitchState.parse(data.state).toInt();
           const message = new SerialMessage(
             SerialMessageType.LIGHT_SET,
@@ -77,7 +77,7 @@ export class MainController implements SerialCommunicatorObserver {
           include: { lights: true },
         });
         group?.lights.forEach((light) => {
-          const element = ItemId.fromString(light.id).index;
+          const element = light.id;
           const message = new SerialMessage(
             SerialMessageType.LIGHT_SET,
             element,
