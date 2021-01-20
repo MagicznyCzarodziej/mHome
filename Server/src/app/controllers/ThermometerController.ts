@@ -11,7 +11,7 @@ export class ThermometerController {
   async addTemperature(
     id: number,
     temperature: number,
-    datetime: Date = new Date()
+    datetime: Date = new Date(),
   ) {
     try {
       await database.thermometer.update({

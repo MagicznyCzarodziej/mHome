@@ -23,7 +23,7 @@ export class SerialMessage {
     readonly type: SerialMessageType,
     readonly element: number = 0,
     readonly value: number = 0,
-    readonly auxilary: number = 0
+    readonly auxilary: number = 0,
   ) {}
 
   static fromString(message: string) {

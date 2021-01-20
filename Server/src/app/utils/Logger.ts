@@ -10,13 +10,13 @@ export class StandardLogger implements Logger {
 
   info(message: string): void {
     console.log(
-      `${chalk.bgBlue(' INFO ')} ${chalk.blue(this.author)}: ${message}`
+      `${chalk.bgBlue(' INFO ')} ${chalk.blue(this.author)}: ${message}`,
     );
   }
 
   error(message: string): void {
     console.log(
-      `${chalk.bgRed(' ERROR ')} ${chalk.red(`${this.author}: ${message}`)}`
+      `${chalk.bgRed(' ERROR ')} ${chalk.red(`${this.author}: ${message}`)}`,
     );
   }
 }

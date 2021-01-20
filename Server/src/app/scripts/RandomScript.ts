@@ -21,7 +21,7 @@ export class RandomScript implements Script {
     const message = new SerialMessage(
       SerialMessageType.LIGHT_SET,
       0,
-      light?.state === 'ON' ? 0 : 1
+      light?.state === 'ON' ? 0 : 1,
     );
     serialCommunicator.send(message);
   }

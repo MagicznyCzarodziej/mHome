@@ -60,7 +60,7 @@ export class MainController implements SerialCommunicatorObserver {
           const message = new SerialMessage(
             SerialMessageType.LIGHT_SET,
             element,
-            state
+            state,
           );
           this.serialCommunicator.send(message);
         } catch (error) {
@@ -81,7 +81,7 @@ export class MainController implements SerialCommunicatorObserver {
           const message = new SerialMessage(
             SerialMessageType.LIGHT_SET,
             element,
-            state
+            state,
           );
           this.serialCommunicator.send(message);
         });

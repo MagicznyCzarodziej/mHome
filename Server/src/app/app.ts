@@ -53,7 +53,7 @@ export default class App {
       } catch (error) {
         // TODO: Create file logger and logging levels and outputs so this is not logged to main log
         this.logger.info(
-          `Invalid message from /msg (received: ${req.originalUrl}) ${error}`
+          `Invalid message from /msg (received: ${req.originalUrl}) ${error}`,
         );
 
         res.status(400).send({

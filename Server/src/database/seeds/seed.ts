@@ -83,8 +83,8 @@ export async function seed() {
       groups.map((group) =>
         database.group.create({
           data: group,
-        })
-      )
+        }),
+      ),
     );
 
     // Lights
@@ -92,8 +92,8 @@ export async function seed() {
       lights.map((light) =>
         database.light.create({
           data: light,
-        })
-      )
+        }),
+      ),
     );
 
     // Thermometers
@@ -101,8 +101,8 @@ export async function seed() {
       thermometers.map((thermometer) =>
         database.thermometer.create({
           data: thermometer,
-        })
-      )
+        }),
+      ),
     );
   } catch (error) {
     console.log('Błąd');

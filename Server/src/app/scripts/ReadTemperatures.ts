@@ -16,7 +16,7 @@ export class ReadTemperatures implements Script {
     serialCommunicator.send(message);
     const message2 = new SerialMessage(
       SerialMessageType.THERMOMETER_REQUEST,
-      1
+      1,
     );
     serialCommunicator.send(message2);
   }

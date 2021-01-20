@@ -11,7 +11,7 @@ export function registerScripts() {
     const delay =
       new Date().getUTCMilliseconds() - firedAt.getUTCMilliseconds();
     scriptsLogger.info(
-      `Script [${this.name}] planned on ${plannedDate} run at ${actualDate} (delay: ${delay}ms)`
+      `Script [${this.name}] planned on ${plannedDate} run at ${actualDate} (delay: ${delay}ms)`,
     );
   };
 

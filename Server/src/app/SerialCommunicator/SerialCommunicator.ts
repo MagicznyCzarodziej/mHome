@@ -15,21 +15,21 @@ export class SerialCommunicator {
   constructor(
     private logger: Logger,
     private serialPath: string,
-    private baudRate: number
+    private baudRate: number,
   ) {}
 
   public async init() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.port = new SerialPort(
         this.serialPath,
         { baudRate: this.baudRate },
         (error) => {
           if (error)
             this.logger.error(
-              `Cannot open serial port ${this.serialPath} (${error})`
+              `Cannot open serial port ${this.serialPath} (${error})`,
             );
           reject();
-        }
+        },
       );
       this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
 
@@ -42,8 +42,8 @@ export class SerialCommunicator {
       this.parser.on('data', (data: string) => {
         this.logger.info(
           `Received message: ${chalk.magenta(
-            SerialMessage.fromString(data).toString(true)
-          )} (original: ${data.trim()})`
+            SerialMessage.fromString(data).toString(true),
+          )} (original: ${data.trim()})`,
         );
 
         // Notify all observers
