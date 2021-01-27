@@ -1,32 +1,41 @@
 <template>
   <div class="layout">
-    <Header :icon="icon" class="header">
-      <slot name="header" />
-    </Header>
-    <div class="main">
-      <slot />
+    <div class="layout__topbar">
+      <slot name="topbar"></slot>
     </div>
+    <div class="layout__page-content">
+      <slot></slot>
+    </div>
+    <BottomMenu />
   </div>
 </template>
 
-<script>
-import Header from '@/components/Header.vue';
+<script lang="ts">
+import { defineComponent } from "vue";
+import BottomMenu from "components/BottomMenu.vue";
 
 export default {
-  name: 'Dashboard',
-  props: ['icon'],
-  components: {
-    Header,
-  },
+  name: "DefaultLayout",
+  components: { BottomMenu },
 };
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus" scoped>
 .layout
-  overflow-y auto
+  display grid
+  height 100%
+  background-color cGray900
+  grid-template-rows auto 1fr auto
+  grid-template-columns 1fr
+  grid-template-areas 'topbar' 'content' 'menu'
 
-.main
-  padding 1rem
-  @media desktop
-    padding 3rem
+.layout__page-content
+  overflow-y auto
+  grid-area content
+
+.layout__topbar
+  grid-area topbar
+
+.menu
+  grid-area menu
 </style>

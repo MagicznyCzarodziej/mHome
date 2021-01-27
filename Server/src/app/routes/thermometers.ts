@@ -5,6 +5,15 @@ import { queryExists } from './helpers';
 
 const router = Express.Router();
 
+router.get('/', async (req, res) => {
+  try {
+    const thermometer = await database.thermometer.findMany();
+    res.send(thermometer);
+  } catch (error) {
+    return res.send({ error: 'Error' });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   const id = Number.parseInt(req.params.id);
   const showTemperatures = queryExists('temperatures', req.query);
@@ -35,4 +44,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-export { router as thermometer };
+export { router as thermometers };

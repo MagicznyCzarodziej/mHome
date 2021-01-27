@@ -1,8 +1,14 @@
 import Express from 'express';
 
-import { thermometer } from 'app/routes/thermometer';
+import { thermometers } from 'app/routes/thermometers';
+import { lights } from 'app/routes/lights';
+import { groups } from 'app/routes/groups';
+import { reeds } from 'app/routes/reeds';
 
 const router = Express.Router();
-router.use('/thermometer', thermometer);
+router.use('/thermometers', thermometers);
+router.use('/lights', lights);
+router.use('/groups', groups);
+router.use('/reeds', reeds);
 
 export { router };

@@ -26,7 +26,7 @@ export class ThermometerController {
           temperatures: {
             create: {
               value: temperature,
-              datetime, // TODO: Check if database accept date in this format
+              datetime,
             },
           },
         },

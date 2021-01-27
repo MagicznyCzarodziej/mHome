@@ -15,6 +15,9 @@ export class LightController {
       },
     });
 
-    this.io.emit(SocketMessage.toClient.LIGHT_STATE, state.toString());
+    this.io.emit(SocketMessage.toClient.LIGHT_STATE, {
+      id,
+      state: state.toString(),
+    });
   }
 }

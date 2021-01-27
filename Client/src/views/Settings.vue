@@ -1,96 +1,69 @@
 <template>
-  <DefaultLayout icon="sliders-h">
-    <template #header>Ustawienia</template>
-    <Box @save="save">
+  <DefaultLayout>
+    <template #topbar>
+      <TopBar />
+    </template>
+    <div class="settings">
       <div class="setting">
-        <label for="API_IP">API IP</label>
-        <input
-          v-model.trim="apiIp"
-          name="API_IP"
-          type="text"
-          placeholder="ip:port"
-          size="1"
-        >
+        <div class="setting__label">Adres API</div>
+        <div class="setting__control">
+          <input type="text" v-model="settings.apiIp" />
+        </div>
       </div>
       <div class="setting">
-        <label for="LIGHTS_UPDATE_INTERVAL">Odświeżanie świateł</label>
-        <input
-          v-model.trim="lightsUpdateInterval"
-          name="LIGHTS_UPDATE_INTERVAL"
-          type="text"
-          placeholder="ms"
-          size="1"
-        >
+        <div class="setting__label">Inne</div>
+        <div class="setting__control">
+          <input type="text" />
+        </div>
       </div>
-      <div class="setting">
-        <label for="THERMOMETERS_UPDATE_INTERVAL">Odświeżanie termometrów</label>
-        <input
-          v-model.trim="thermometersUpdateInterval"
-          name="THERMOMETERS_UPDATE_INTERVAL"
-          type="text"
-          placeholder="ms"
-          size="1"
-        >
-      </div>
-      <template #button>Zapisz</template>
-    </Box>
+    </div>
   </DefaultLayout>
 </template>
 
-<script>
-import DefaultLayout from '@/components/DefaultLayout.vue';
-import Box from '@/components/Box.vue';
-import store from '@/store.js';
+<script lang="ts">
+import { defineComponent } from "vue";
+import DefaultLayout from "components/DefaultLayout.vue";
+import TopBar from "components/TopBar.vue";
 
 export default {
-  name: 'Dashboard',
+  name: "Settings",
   components: {
     DefaultLayout,
-    Box,
+    TopBar,
   },
   data() {
     return {
-      apiIp: store.state.API_IP,
-      lightsUpdateInterval: store.state.LIGHTS_UPDATE_INTERVAL,
-      thermometersUpdateInterval: store.state.THERMOMETERS_UPDATE_INTERVAL,
+      settings: {
+        apiIp: "192.168.1.16:3000",
+      },
     };
   },
-  methods: {
-    save() {
-      store.set('API_IP', this.apiIp);
-      store.set('LIGHTS_UPDATE_INTERVAL', this.lightsUpdateInterval);
-      store.set('THERMOMETERS_UPDATE_INTERVAL', this.thermometersUpdateInterval);
-      this.$emit('showNotification', { type: 'success', title: 'Zapisano!', message: '' });
-    },
-  },
 };
-
 </script>
 
-<style scoped lang="stylus">
-.setting input
-  font-family inherit
-  font-size 1rem
-  color cTextGray
-  text-align center
-  width 100%
-  max-width 16rem
-  padding 0.2rem
-
-.setting label
-  font-size 1rem
-  flex 1
-  font-weight bold
-  margin-bottom 0.5rem
-  @media desktop
-    padding-right 1rem
-    margin-bottom 0
+<style lang="stylus" scoped>
+.settings
+  padding 1rem
 
 .setting
-  padding 0.5rem
-  display flex
-  flex-direction: column;
-  align-items center
-  @media desktop
-    flex-direction: row;
+  display grid
+  padding 1rem
+  border-bottom 1px solid cGray800
+  font-size 1.2rem
+  grid-template-columns 50% 50%
+
+.setting__control
+  input
+    position relative
+    padding 0
+    max-width 100%
+    border none
+    background-color transparent
+    color cGray500
+    text-align right
+    font-size 1.2rem
+
+    &:focus
+      outline none
+      color cGray300
 </style>

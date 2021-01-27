@@ -12,7 +12,8 @@
     "start": "node build",
     "build": "tsc && tsc-alias",
     "watch": "concurrently -k -p \"[W:{name}]\" -n \"TSC,TSA,NDM\" -c \"yellow.bold,blue.bold,green.bold\" \"tsc -w --preserveWatchOutput\" \"tsc-alias -w\" \"nodemon build\"",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:seed": "node build/database/seeds/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^2.8.1",

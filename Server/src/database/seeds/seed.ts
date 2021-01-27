@@ -2,10 +2,30 @@ import {
   GroupCreateInput,
   LightCreateInput,
   ThermometerCreateInput,
+  ReedCreateInput,
 } from '@prisma/client';
 import { database } from 'database/database';
 
 const groups: GroupCreateInput[] = [
+  {
+    id: 'KITCHEN',
+    name: 'Kuchnia',
+    icon: 'silverware',
+  },
+  {
+    id: 'BEDROOM',
+    name: 'Sypialnia',
+  },
+  {
+    id: 'BATHROOM',
+    name: 'Łazienki / Pralnia',
+    description: 'Jakiś pokój A',
+  },
+  {
+    id: 'ROOM_A',
+    name: 'Pokój A',
+    description: 'Jakiś pokój A',
+  },
   {
     id: 'LIVING_ROOM',
     name: 'Salon',
@@ -13,18 +33,21 @@ const groups: GroupCreateInput[] = [
     icon: 'sofa',
   },
   {
-    id: 'KITCHEN',
-    name: 'Kuchnia',
-    icon: 'silverware',
+    id: 'ROOM_B',
+    name: 'Pokój B',
+    description: 'Jakiś pokój B',
+  },
+  {
+    id: 'GARAGE_AND_OTHERS',
+    name: 'Garaż / Kotłownia',
+  },
+  {
+    id: 'VESTIBULE',
+    name: 'Ganek / Korytarz',
   },
   {
     id: 'OUTSIDE',
     name: 'Dwór',
-  },
-  {
-    id: 'ROOM_1',
-    name: 'Pokój 1',
-    description: 'Jakiś pokój nr 1',
   },
 ];
 
@@ -76,6 +99,36 @@ const thermometers: ThermometerCreateInput[] = [
   },
 ];
 
+const reeds: ReedCreateInput[] = [
+  {
+    id: 0,
+    name: 'Okno',
+    group: {
+      connect: {
+        id: 'LIVING_ROOM',
+      },
+    },
+  },
+  {
+    id: 1,
+    name: 'Drzwi tarasowe',
+    group: {
+      connect: {
+        id: 'LIVING_ROOM',
+      },
+    },
+  },
+  {
+    id: 2,
+    name: 'Okno',
+    group: {
+      connect: {
+        id: 'ROOM_A',
+      },
+    },
+  },
+];
+
 export async function seed() {
   try {
     // Groups
@@ -101,6 +154,15 @@ export async function seed() {
       thermometers.map((thermometer) =>
         database.thermometer.create({
           data: thermometer,
+        }),
+      ),
+    );
+
+    // Reeds
+    await Promise.all(
+      reeds.map((reed) =>
+        database.reed.create({
+          data: reed,
         }),
       ),
     );

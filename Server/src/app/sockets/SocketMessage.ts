@@ -4,6 +4,8 @@ export const SocketMessage = {
     LIGHT_SET: 'lights/set',
     /** Client requested change of state of all lights in group */
     GROUP_LIGHTS_SET: 'group/lights/set',
+    /** Client requested change of state of all lights */
+    ALL_LIGHTS_SET: 'group/lights/set',
   },
   toClient: {
     /** Notify client that light state has changed */
