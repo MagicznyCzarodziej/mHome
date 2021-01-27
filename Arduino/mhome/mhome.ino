@@ -66,7 +66,7 @@ void sendMessage(char command, int element, int value, int aux) {
 ------------------------------------ */
 
 const byte SWITCHES_SIZE = 2;
-const byte LIGHTS_SIZE = 2;
+const byte LIGHTS_SIZE = 18;
 const byte THERMOMETERS_SIZE = 2;
 const byte REEDS_SIZE = 2;
 
@@ -82,7 +82,7 @@ byte previousSwitchesState[SWITCHES_SIZE] = {LOW, LOW};
 unsigned long switchesTimes[SWITCHES_SIZE] = {0, 0}; // the last time the output pin was toggled
 
 // LIGHTS
-byte lights[LIGHTS_SIZE] = {3, 4}; // LIGHTS //TODO: Change this to lightsPin
+byte lights[LIGHTS_SIZE] = {3, 4, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13}; // LIGHTS //TODO: Change this to lightsPin
 byte lightsValue[LIGHTS_SIZE];
 int mapSwitchToLight[SWITCHES_SIZE] = {0, 1};
 
@@ -113,7 +113,7 @@ void setup() {
 
   // LIGHTS
   for (byte i = 0; i < LIGHTS_SIZE; i++) {
-    pinMode(lighs[i], OUTPUT);
+    pinMode(lights[i], OUTPUT);
     lightsValue[i] = 0;
     digitalWrite(lights[i], RELAY_OFF);
   }

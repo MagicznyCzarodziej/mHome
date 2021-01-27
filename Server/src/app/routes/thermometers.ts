@@ -32,7 +32,7 @@ router.get('/:id', async (req, res) => {
     : null;
 
   try {
-    const thermometer = await database.thermometer.findOne({
+    const thermometer = await database.thermometer.findUnique({
       where: {
         id,
       },

@@ -72,11 +72,26 @@ export class MainController implements SerialCommunicatorObserver {
       socket.on(SocketMessage.toServer.GROUP_LIGHTS_SET, async (data) => {
         const { groupId } = data;
         const state = SwitchState.parse(data.state).toInt();
-        const group = await database.group.findOne({
+        const group = await database.group.findUnique({
           where: { id: groupId },
           include: { lights: true },
         });
-        group?.lights.forEach((light) => {
+        group?.lights.forEach((light: any) => {
+          const element = light.id;
+          const message = new SerialMessage(
+            SerialMessageType.LIGHT_SET,
+            element,
+            state,
+          );
+          this.serialCommunicator.send(message);
+        });
+      });
+
+      // Set state of all lights
+      socket.on(SocketMessage.toServer.ALL_LIGHTS_SET, async (data) => {
+        const state = SwitchState.parse(data.state).toInt();
+        const lights = await database.light.findMany({});
+        lights.forEach((light) => {
           const element = light.id;
           const message = new SerialMessage(
             SerialMessageType.LIGHT_SET,

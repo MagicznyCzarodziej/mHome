@@ -13,7 +13,7 @@ export class RandomScript implements Script {
 
   public async execute() {
     const serialCommunicator = Container.get(SerialCommunicator);
-    const light = await database.light.findOne({
+    const light = await database.light.findUnique({
       where: { id: 0 },
       select: { state: true },
     });

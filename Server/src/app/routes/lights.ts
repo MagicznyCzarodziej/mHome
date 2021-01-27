@@ -16,7 +16,7 @@ router.get('/:id', async (req, res) => {
   const id = Number.parseInt(req.params.id);
 
   try {
-    const light = await database.light.findOne({
+    const light = await database.light.findUnique({
       where: {
         id,
       },

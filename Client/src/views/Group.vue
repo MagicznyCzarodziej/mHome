@@ -1,9 +1,12 @@
 <template>
   <DefaultLayout>
     <template #topbar>
-      <GroupTopBar name="Salon" />
+      <GroupTopBar :name="group.name" />
     </template>
-    <div class="group-temperatures">
+    <div
+      v-if="elements.thermometers && elements.thermometers.length"
+      class="group-temperatures"
+    >
       <div
         v-for="thermometer in elements.thermometers"
         class="temperature"
@@ -60,7 +63,7 @@ import DefaultLayout from "components/DefaultLayout.vue";
 import GroupTopBar from "components/GroupTopBar.vue";
 import LightbulbOnIcon from "vue-material-design-icons/Lightbulb";
 import LightbulbOffIcon from "vue-material-design-icons/LightbulbOutline";
-import { getAllGroupElements } from "services/api";
+import { getAllGroupElements, getGroupById } from "services/api";
 
 export default {
   name: "Group",
@@ -72,10 +75,12 @@ export default {
   },
   data() {
     return {
+      group: {},
       elements: [],
     };
   },
   created: async function () {
+    this.group = await getGroupById(this.$route.params.groupId);
     this.elements = await getAllGroupElements(this.$route.params.groupId);
   },
   sockets: {
@@ -123,7 +128,7 @@ export default {
   .light--off
     color cGray500
 
-  .reed-open
+  .reed--open
     color cRed500
 
   .reed--closed

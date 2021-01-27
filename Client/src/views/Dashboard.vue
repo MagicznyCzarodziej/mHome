@@ -67,23 +67,69 @@
         </div>
         <div class="grid__tile" data-group-id="LIVING_ROOM">
           <div>
-            <div class="tile__icon"><LivingRoomIcon size="10vw" /></div>
+            <div
+              class="tile__icon"
+              :class="{
+                'tile__icon--active':
+                  getGroupElements('LIVING_ROOM').lights &&
+                  getGroupElements('LIVING_ROOM').lights.some(
+                    (light) => light.state === 'ON'
+                  ),
+              }"
+            >
+              <LivingRoomIcon size="10vw" />
+            </div>
             <div class="tile__label">Salon</div>
             <div class="tile__lights">
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
+              <span
+                v-for="light in getGroupElements('LIVING_ROOM').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
             </div>
-            <div class="tile__reeds"></div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('LIVING_ROOM').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
           </div>
         </div>
         <div class="grid__tile" data-group-id="ROOM_B">
           <div>
-            <div class="tile__icon"><BathroomIcon size="10vw" /></div>
+            <div
+              class="tile__icon"
+              :class="{
+                'tile__icon--active':
+                  getGroupElements('ROOM_B').lights &&
+                  getGroupElements('ROOM_B').lights.some(
+                    (light) => light.state === 'ON'
+                  ),
+              }"
+            >
+              <BathroomIcon size="10vw" />
+            </div>
             <div class="tile__label">Pokój B</div>
-            <div class="tile__lights"></div>
+            <div class="tile__lights">
+              <span
+                v-for="light in getGroupElements('ROOM_B').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
+            </div>
             <div class="tile__reeds">
-              <div class="reed-dot"></div>
+              <div class="reed-dot">
+                <span
+                  v-for="reed in getGroupElements('ROOM_B').reeds"
+                  :key="reed.id"
+                  v-show="reed.state === 'OPEN'"
+                  class="reed-dot"
+                ></span>
+              </div>
             </div>
             <div class="tile__lock"></div>
           </div>
@@ -136,8 +182,11 @@
       </div>
       <div class="dashboard__controls">
         <div class="controls__item">
-          <LightbulbGroupIcon size="1.5rem" />
-          <LightbulbGroupOffIcon size="1.5rem" />
+          <LightbulbGroupIcon size="1.5rem" @click="switchAllLights('ON')" />
+          <LightbulbGroupOffIcon
+            size="1.5rem"
+            @click="switchAllLights('OFF')"
+          />
         </div>
 
         <div class="controls__item">
@@ -172,6 +221,7 @@ import LightbulbGroupIcon from "vue-material-design-icons/LightbulbGroup.vue";
 import LightbulbGroupOffIcon from "vue-material-design-icons/LightbulbGroupOff.vue";
 import BlindsIcon from "vue-material-design-icons/Blinds.vue";
 import BlindsOpenIcon from "vue-material-design-icons/BlindsOpen.vue";
+import { getAllThermometers, getAllLights, getAllReeds } from "services/api";
 
 export default {
   name: "Dashboard",
@@ -194,7 +244,7 @@ export default {
   },
   data() {
     return {
-      debug: "",
+      elements: { lights: [], thermometers: [], reeds: [] },
       isTouching: false,
       touchDirection: 0,
       touchLocked: false,
@@ -202,6 +252,35 @@ export default {
       touchStartTimestamp: null,
       fired: false,
     };
+  },
+  created: async function () {
+    this.elements.lights = await getAllLights();
+    this.elements.thermometers = await getAllThermometers();
+    this.elements.reeds = await getAllReeds();
+  },
+  sockets: {
+    "lights/state": function (received) {
+      const light = this.elements.lights.find(
+        (light) => light.id === received.id
+      );
+      if (light) light.state = received.state;
+    },
+  },
+  methods: {
+    switchAllLights(state) {
+      this.$socket.emit("lights/set/all", { state });
+    },
+    getGroupElements(groupId) {
+      return {
+        lights: this.elements.lights.filter(
+          (light) => light.groupId === groupId
+        ),
+        thermometers: this.elements.thermometers.filter(
+          (thermometer) => thermometer.groupId === groupId
+        ),
+        reeds: this.elements.reeds.filter((reed) => reed.groupId === groupId),
+      };
+    },
   },
   mounted() {
     const tiles = this.$el.getElementsByClassName("grid__tile");
@@ -230,7 +309,6 @@ export default {
             this.touchDirection === 1 ? "ON" : "OFF"
           }`
         );
-        console.log("FIRED");
       };
 
       // Start touch
@@ -377,6 +455,9 @@ distanceFromBorder = 0.5rem
   padding 0
   color cGray500
 
+  &--active
+    color cGreen500
+
 .tile__lights
   position absolute
   bottom distanceFromBorder
@@ -448,6 +529,14 @@ distanceFromBorder = 0.5rem
   height 100%
   color cGray500
   gap 2rem
+
+  svg
+    transition 0.5s
+
+  svg:active
+    color cGreen500
+    transition 0s
+    transform scale(1.2)
 
   &:nth-child(2)
     border-right 1px solid cGray800

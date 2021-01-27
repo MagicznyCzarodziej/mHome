@@ -16,7 +16,7 @@ router.get('/:id', async (req, res) => {
   const id = Number.parseInt(req.params.id);
 
   try {
-    const reeds = await database.reed.findOne({
+    const reeds = await database.reed.findUnique({
       where: {
         id,
       },

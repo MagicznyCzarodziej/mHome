@@ -12,6 +12,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const group = await database.group.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    res.send(group);
+  } catch (error) {
+    return res.send({ error: 'Error' });
+  }
+});
+
 router.get('/:id/elements', async (req, res) => {
   const groupId = req.params.id;
 
