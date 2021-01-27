@@ -49,5 +49,29 @@ export default {
 
 <style lang="stylus" scoped>
 .thermometers
-  padding 2rem
+  padding 0 1rem
+
+.thermometer
+  display flex
+  justify-content space-between
+  align-items center
+  padding 0.5rem 1rem
+  min-height 2.5rem
+  border-bottom 1px solid cGray800
+  font-size 1.2rem
+
+  &__label
+    color cGray500
+
+.temperature
+  text-shadow 0 0 2px @color
+
+  &--low
+    color cBlue500
+
+  &--medium
+    color cGreen500
+
+  &--high
+    color cRed300
 </style>

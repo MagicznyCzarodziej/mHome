@@ -24,10 +24,21 @@
             <div class="tile__icon"><KitchenIcon size="10vw" /></div>
             <div class="tile__label">Kuchnia</div>
             <div class="tile__lights">
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
+              <span
+                v-for="light in getGroupElements('KITCHEN').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
             </div>
-            <div class="tile__reeds"></div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('KITCHEN').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
           </div>
         </div>
         <div class="grid__tile" data-group-id="BEDROOM">
@@ -35,12 +46,20 @@
             <div class="tile__icon"><BedEmptyIcon size="10vw" /></div>
             <div class="tile__label">Sypialnia</div>
             <div class="tile__lights">
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
+              <span
+                v-for="light in getGroupElements('BEDROOM').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
             </div>
             <div class="tile__reeds">
-              <div class="reed-dot"></div>
-              <div class="reed-dot"></div>
+              <span
+                v-for="reed in getGroupElements('BEDROOM').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
             </div>
           </div>
         </div>
@@ -48,21 +67,46 @@
           <div>
             <div class="tile__icon"><BathroomIcon size="10vw" /></div>
             <div class="tile__label">Łazienki / Pralnia</div>
-            <div class="tile__lights"></div>
-            <div class="tile__reeds"></div>
+            <div class="tile__lights">
+              <span
+                v-for="light in getGroupElements('BATHROOM').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
+            </div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('BATHROOM').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
             <div class="tile__lock"></div>
           </div>
         </div>
 
         <div class="grid__tile" data-group-id="ROOM_A">
           <div>
-            <div class="tile__icon"><KitchenIcon size="10vw" /></div>
+            <div class="tile__icon"><MonitorIcon size="10vw" /></div>
             <div class="tile__label">Pokój A</div>
             <div class="tile__lights">
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
+              <span
+                v-for="light in getGroupElements('ROOM_A').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
             </div>
-            <div class="tile__reeds"></div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('ROOM_A').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
           </div>
         </div>
         <div class="grid__tile" data-group-id="LIVING_ROOM">
@@ -110,7 +154,7 @@
                   ),
               }"
             >
-              <BathroomIcon size="10vw" />
+              <MonitorIcon size="10vw" />
             </div>
             <div class="tile__label">Pokój B</div>
             <div class="tile__lights">
@@ -122,14 +166,12 @@
               ></span>
             </div>
             <div class="tile__reeds">
-              <div class="reed-dot">
-                <span
-                  v-for="reed in getGroupElements('ROOM_B').reeds"
-                  :key="reed.id"
-                  v-show="reed.state === 'OPEN'"
-                  class="reed-dot"
-                ></span>
-              </div>
+              <span
+                v-for="reed in getGroupElements('LIVING_ROOM').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
             </div>
             <div class="tile__lock"></div>
           </div>
@@ -139,8 +181,22 @@
           <div>
             <div class="tile__icon"><CarSideIcon size="10vw" /></div>
             <div class="tile__label">Garaż | Kotłownia</div>
-            <div class="tile__lights"></div>
-            <div class="tile__reeds"></div>
+            <div class="tile__lights">
+              <span
+                v-for="light in getGroupElements('GARAGE_AND_OTHERS').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
+            </div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('GARAGE_AND_OTHERS').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
             <div class="tile__lock tile__lock--locked">
               <DoorLockedIcon />
             </div>
@@ -151,12 +207,21 @@
             <div class="tile__icon"><DoorIcon size="10vw" /></div>
             <div class="tile__label">Ganek | Korytarz</div>
             <div class="tile__lights">
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
+              <span
+                v-for="light in getGroupElements('VESTIBULE').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
             </div>
-            <div class="tile__reeds"></div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('VESTIBULE').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
             <div class="tile__lock tile__lock--unlocked">
               <DoorUnlockedIcon />
             </div>
@@ -167,10 +232,21 @@
             <div class="tile__icon"><WallIcon size="10vw" /></div>
             <div class="tile__label">Dwór</div>
             <div class="tile__lights">
-              <span class="light-dot"></span>
-              <span class="light-dot"></span>
+              <span
+                v-for="light in getGroupElements('OUTSIDE').lights"
+                :key="light.id"
+                v-show="light.state === 'ON'"
+                class="light-dot"
+              ></span>
             </div>
-            <div class="tile__reeds"></div>
+            <div class="tile__reeds">
+              <span
+                v-for="reed in getGroupElements('OUTSIDE').reeds"
+                :key="reed.id"
+                v-show="reed.state === 'OPEN'"
+                class="reed-dot"
+              ></span>
+            </div>
             <div class="tile__lock"></div>
           </div>
         </div>
@@ -221,6 +297,7 @@ import LightbulbGroupIcon from "vue-material-design-icons/LightbulbGroup.vue";
 import LightbulbGroupOffIcon from "vue-material-design-icons/LightbulbGroupOff.vue";
 import BlindsIcon from "vue-material-design-icons/Blinds.vue";
 import BlindsOpenIcon from "vue-material-design-icons/BlindsOpen.vue";
+import MonitorIcon from "vue-material-design-icons/Monitor.vue";
 import { getAllThermometers, getAllLights, getAllReeds } from "services/api";
 
 export default {
@@ -230,6 +307,7 @@ export default {
     TopBar,
     LivingRoomIcon,
     KitchenIcon,
+    MonitorIcon,
     BedEmptyIcon,
     BathroomIcon,
     CarSideIcon,
