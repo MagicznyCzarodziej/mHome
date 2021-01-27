@@ -65,6 +65,7 @@ void sendMessage(char command, int element, int value, int aux) {
       PINS GROUPS
 ------------------------------------ */
 
+const byte SWITCHES_SIZE = 2;
 const byte LIGHTS_SIZE = 2;
 const byte THERMOMETERS_SIZE = 2;
 const byte REEDS_SIZE = 2;
@@ -72,13 +73,26 @@ const byte REEDS_SIZE = 2;
 const byte ONE_WIRE_BUS = 2; // OneWire pin
 #define TEMPERATURE_PRECISION 9
 
-byte lights[LIGHTS_SIZE]; // LIGHTS //TODO: Change this to lightsPin
-int lightsValue[LIGHTS_SIZE];
+// SWITCHES
+const unsigned long SWITCH_DEBOUNCE_TIME = 300;
+
+byte switchesPins[SWITCHES_SIZE] = {7, 8};
+byte switchesState[SWITCHES_SIZE] = {LOW, LOW}; // the current reading from the input pin
+byte previousSwitchesState[SWITCHES_SIZE] = {LOW, LOW};
+unsigned long switchesTimes[SWITCHES_SIZE] = {0, 0}; // the last time the output pin was toggled
+
+// LIGHTS
+byte lights[LIGHTS_SIZE] = {3, 4}; // LIGHTS //TODO: Change this to lightsPin
+byte lightsValue[LIGHTS_SIZE];
+int mapSwitchToLight[SWITCHES_SIZE] = {0, 1};
+
+// THEREMOMETERS
 byte thermometers[THERMOMETERS_SIZE][8] = {
     {0x28, 0x37, 0xF6, 0xBC, 0x8, 0x0, 0x0, 0xEA}, // Wenętrzny
     {0x28, 0x7, 0xEC, 0xBC, 0x8, 0x0, 0x0, 0xC6}   // Zewnętrzny
 };
-// THEREMOMETERS
+
+// REEDS
 byte reeds[REEDS_SIZE]; // REED SWTICH
 
 /* ------------------------------------
@@ -92,14 +106,14 @@ DallasTemperature sensors(&oneWire);
 void setup() {
   Serial.begin(9600);
 
+  // SWITCHES
+  for (byte i = 0; i < SWITCHES_SIZE; i++) {
+    pinMode(switchesPins[i], INPUT);
+  }
+
   // LIGHTS
-  lights[0] = 3; // LED
-  lights[1] = 4; // Some other light
-
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-
   for (byte i = 0; i < LIGHTS_SIZE; i++) {
+    pinMode(lighs[i], OUTPUT);
     lightsValue[i] = 0;
     digitalWrite(lights[i], RELAY_OFF);
   }
@@ -121,6 +135,26 @@ void setup() {
 ------------------------------------ */
 
 void loop() {
+  // SWITHES
+  for (byte i = 0; i < SWITCHES_SIZE; i++) {
+    switchesState[i] = digitalRead(switchesPins[i]);
+    byte lightIndex = mapSwitchToLight[i];
+    if (
+        switchesState[i] == HIGH &&
+        previousSwitchesState[i] == LOW &&
+        millis() - switchesTimes[i] > SWITCH_DEBOUNCE_TIME) {
+      if (lightsValue[lightIndex] == HIGH)
+        setLight(lightIndex, 0);
+      else
+        setLight(lightIndex, 1);
+
+      switchesTimes[i] = millis();
+    }
+
+    previousSwitchesState[i] = switchesState[i];
+  }
+
+  // SERIAL
   if (Serial.available() > 0) {
     char received = Serial.read();
     switch (received) {
