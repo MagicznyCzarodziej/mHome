@@ -9,35 +9,38 @@ export class ThermometerController {
   constructor(private io: SocketIO.Server) {}
 
   async addTemperature(
-    id: number,
+    thermometerId: number,
     temperature: number,
     datetime: Date = new Date(),
   ) {
     try {
-      await database.thermometer.update({
-        where: {
-          id,
-        },
-        include: {
-          temperatures: {},
-        },
-        data: {
-          latestTemperature: temperature,
-          temperatures: {
-            create: {
-              value: temperature,
-              datetime,
-            },
+      const results = await database.$transaction([
+        database.temperature.create({
+          data: {
+            value: temperature,
+            datetime,
+            thermometerId,
           },
-        },
+        }),
+        database.thermometer.update({
+          where: {
+            id: thermometerId,
+          },
+          data: {
+            latestTemperature: temperature,
+          },
+        }),
+      ]);
+
+      const temperatureId = results[0].id;
+      this.io.emit(SocketMessage.toClient.THERMOMETER_NEW_TEMPERATURE, {
+        id: temperatureId,
+        thermometerId,
+        value: temperature,
+        datetime,
       });
     } catch (error) {
       this.logger.error(error);
     }
-    this.io.emit(SocketMessage.toClient.THERMOMETER_NEW_TEMPERATURE, {
-      thermometerId: id,
-      temperature,
-      datetime,
-    });
   }
 }

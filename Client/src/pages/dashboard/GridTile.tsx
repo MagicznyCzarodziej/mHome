@@ -1,0 +1,152 @@
+import React, { useState, useRef } from 'react';
+import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
+import cx from 'classnames';
+
+import { DashboardGridTile } from 'types/DashboardGridTile';
+import { LightService } from 'services/LightService';
+import { selectLightsByGroupId } from 'store/reducers/lightsReducer';
+
+import styles from 'pages/Dashboard.module.sass';
+
+import { Icon } from '@mdi/react';
+import { mdiDoorOpen, mdiDoorClosedLock } from '@mdi/js';
+
+const TILE_LOCK_TIME = 350;
+const MOVE_THRESHOLD = 0.7;
+const VELOCITY_THRESHOLD = 0.4;
+
+export const GridTile = (props: DashboardGridTile) => {
+  const { id, label, icon, lock } = props;
+  const history = useHistory();
+
+  const reeds: any[] = []; // temp- add selector
+  const lights = useSelector(selectLightsByGroupId(id));
+  const isAnyLightOn = lights.some((light) => light.state === 'ON');
+
+  const tileRef = React.createRef<any>();
+  const [fired, setFired] = useState(false);
+  const touchStart = useRef<Touch | null>(null);
+  const touchLocked = useRef<boolean>(false);
+  const [touchStartTimestamp, setTouchStartTimestamp] = useState<any>(null);
+  const [touchDirection, setTouchDirection] = useState(0);
+
+  const fire = () => {
+    const tileContent = tileRef.current.firstElementChild;
+    setFired(true);
+    touchLocked.current = true;
+    tileContent.style.transform = 'translateX(' + touchDirection * 100 + '%)';
+
+    setTimeout(() => {
+      touchLocked.current = false;
+      if (!touchStart.current) tileContent.style.transform = 'translateX(0)';
+    }, TILE_LOCK_TIME);
+
+    LightService.setAllGroupLights(id, touchDirection === 1 ? 'ON' : 'OFF');
+    navigator.vibrate(50);
+  };
+
+  const handleTouchStart = (event: any) => {
+    if (touchLocked.current) return;
+    touchStart.current = event.touches[0];
+    setTouchStartTimestamp(event.timeStamp);
+
+    setFired(false);
+  };
+
+  const handleTouchMove = (event: any) => {
+    const tileContent = tileRef.current.firstElementChild;
+    if (fired) return;
+    if (!touchStart.current) return;
+
+    const clientX = event.changedTouches[0].clientX;
+    const deltaX = clientX - touchStart.current.clientX; // Distance from touch start
+    if (touchDirection === 0) {
+      setTouchDirection(Math.sign(deltaX));
+    }
+    const move = deltaX / tileRef.current.clientWidth; // Percentage move of tile width
+    tileContent.style.transform = `translateX(${move * 100}%)`;
+
+    if (Math.abs(move) > MOVE_THRESHOLD) {
+      fire();
+    }
+  };
+
+  const handleTouchEnd = (event: any) => {
+    const tileContent = tileRef.current.firstElementChild;
+
+    if (!touchLocked.current) {
+      tileContent.style.transform = 'translateX(0)';
+    }
+
+    const touchEndTimestamp = event.timeStamp;
+    const distance =
+      event.changedTouches[0].clientX - (touchStart.current?.clientX || 0);
+    const deltaTime = touchEndTimestamp - touchStartTimestamp;
+    const velocity = Math.abs(distance / deltaTime);
+
+    if (velocity > VELOCITY_THRESHOLD && !fired) {
+      fire();
+    }
+    touchStart.current = null;
+    setTouchDirection(0);
+    if (!touchLocked.current) tileContent.style.transform = 'translateX(0)';
+  };
+
+  return (
+    <div
+      key={id}
+      className={styles.grid__tile}
+      data-group-id={id}
+      onClick={() => {
+        history.push(`/group/${id}`);
+      }}
+      ref={tileRef}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div>
+        <div
+          className={cx(styles.tile__icon, {
+            [styles['tile__icon--active']]: isAnyLightOn,
+          })}
+        >
+          <Icon path={icon} size="10vw" />
+        </div>
+        <div className={styles.tile__label}>{label}</div>
+        <div className={styles.tile__lights}>
+          {lights.map(
+            (light) =>
+              light.state === 'ON' && (
+                <span key={light.id} className={styles['light-dot']} />
+              )
+          )}
+        </div>
+        <div className={styles.tile__reeds}>
+          {reeds.map(
+            (reed) =>
+              reed.state === 'OPEN' && (
+                <span key={reed.id} className={styles['reed-dot']} />
+              )
+          )}
+        </div>
+
+        {lock === 'LOCKED' && (
+          <div
+            className={`${styles.tile__lock} ${styles['tile__lock--locked']}`}
+          >
+            <Icon path={mdiDoorClosedLock} size="1.5rem" />
+          </div>
+        )}
+        {lock === 'UNLOCKED' && (
+          <div
+            className={`${styles.tile__lock} ${styles['tile__lock--unlocked']}`}
+          >
+            <Icon path={mdiDoorOpen} size="1.5rem" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

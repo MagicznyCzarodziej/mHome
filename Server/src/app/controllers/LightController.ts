@@ -1,12 +1,13 @@
 import { OnOff } from 'app/interfaces/OnOff';
 import { SocketMessage } from 'app/sockets/SocketMessage';
 import { database } from 'database/database';
+import { Server as SocketServer } from 'socket.io';
 
 export class LightController {
   private buffer: { id: number; state: OnOff }[];
   private timeout: NodeJS.Timeout | null;
 
-  constructor(private io: SocketIO.Server) {
+  constructor(private io: SocketServer) {
     this.buffer = [];
     this.timeout = null;
   }

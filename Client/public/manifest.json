@@ -1,0 +1,9 @@
+{
+  "short_name": "mHome",
+  "name": "mHome",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#11181C",
+  "background_color": "#ffffff"
+}

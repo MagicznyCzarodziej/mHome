@@ -1,6 +1,6 @@
 import { Container } from 'typedi';
 import { Server } from 'http';
-import socketIO from 'socket.io';
+import { Server as SocketServer, Socket } from 'socket.io';
 
 import { database } from 'database/database';
 import {
@@ -18,7 +18,7 @@ import { decodeTemperature } from 'app/SerialCommunicator/utils';
 import { registerScripts } from 'app/scripts';
 
 export class MainController implements SerialCommunicatorObserver {
-  private io: SocketIO.Server;
+  private io: SocketServer;
   private serialCommunicator: SerialCommunicator;
   private lightController: LightController;
   private thermometerController: ThermometerController;
@@ -26,7 +26,12 @@ export class MainController implements SerialCommunicatorObserver {
   constructor(private logger: Logger, private httpServer: Server) {
     this.serialCommunicator = Container.get(SerialCommunicator);
     this.serialCommunicator.subscribe(this);
-    this.io = socketIO(this.httpServer);
+    this.io = new SocketServer(this.httpServer, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+      },
+    });
     this.lightController = new LightController(this.io);
     this.thermometerController = new ThermometerController(this.io);
     this.handleSockets();
@@ -51,7 +56,21 @@ export class MainController implements SerialCommunicatorObserver {
   }
 
   handleSockets() {
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', (socket: Socket) => {
+      this.logger.info(
+        `Socket client connected ${socket.id} (Connected: ${
+          this.io.of('/').sockets.size
+        })`,
+      );
+
+      socket.on('disconnect', () => {
+        this.logger.info(
+          `Socket client disconnected ${socket.id} (Connected: ${
+            this.io.of('/').sockets.size
+          })`,
+        );
+      });
+
       // Set light state
       socket.on(SocketMessage.toServer.LIGHT_SET, (data) => {
         try {
