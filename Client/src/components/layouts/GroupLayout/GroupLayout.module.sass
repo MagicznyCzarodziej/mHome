@@ -1,0 +1,19 @@
+@import '~assets/styles/variables'
+
+.layout
+  display: grid
+  height: 100%
+  background-color: $cGray900
+  grid-template-rows: auto 1fr auto
+  grid-template-columns: 1fr
+  grid-template-areas: 'topbar' 'content' 'menu'
+
+.layout__page-content
+  overflow-y: auto
+  grid-area: content
+
+.layout__topbar
+  grid-area: topbar
+
+.menu
+  grid-area: menu

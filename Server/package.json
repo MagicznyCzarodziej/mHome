@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node build",
     "build": "tsc && tsc-alias",
-    "watch": "concurrently -k -p \"[W:{name}]\" -n \"TSC,TSA,NDM\" -c \"yellow.bold,blue.bold,green.bold\" \"tsc -w --preserveWatchOutput\" \"tsc-alias -w\" \"nodemon build\"",
+    "watch": "concurrently -k -p \"[W:{name}]\" -n \"TSC,TSA,NDM\" -c \"yellow.bold,blue.bold,green.bold\" \"tsc -w --preserveWatchOutput\" \"tsc-alias -w\" \"nodemon --enable-source-maps build\"",
     "db:generate": "prisma generate",
     "db:seed": "node build/database/seeds/seed.js"
   },

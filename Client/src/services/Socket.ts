@@ -12,9 +12,27 @@ socket.on('connect', () => {
 
 export { socket };
 
+export const SocketMessage = {
+  toServer: {
+    LIGHT_SET: 'lights/set',
+    LIGHTS_SET_GROUP: 'lights/set/group',
+    LIGHTS_SET_ALL: 'lights/set/all',
+    BLIND_SET: 'blinds/set',
+    BLIND_SET_GROUP: 'blinds/set/group',
+    BLIND_SET_ALL: 'blinds/set/all',
+  },
+  toClient: {
+    LIGHT_STATE: 'lights/state',
+    THERMOMETER_NEW_TEMPERATURE: 'thermometers/newTemperature',
+    REED_STATE: 'reeds/state',
+    BLIND_POSITION_CHANGE: 'blinds/position',
+    BLIND_STATE_CHANGE: 'blinds/state',
+  },
+};
+
 export const createSocketListeners = (dispatch: Dispatch, socket: Socket) => {
-  socket.on('thermometers/newTemperature', (data) => {
-    console.log('elo', data);
+  // New temperature measured
+  socket.on(SocketMessage.toClient.THERMOMETER_NEW_TEMPERATURE, (data) => {
     const { thermometerId, ...temperature } = data;
     dispatch(
       thermometersActions.thermometerTemperatureResponse({
@@ -23,7 +41,9 @@ export const createSocketListeners = (dispatch: Dispatch, socket: Socket) => {
       })
     );
   });
-  socket.on('lights/state', (data) => {
+
+  // Light state changed
+  socket.on(SocketMessage.toClient.LIGHT_STATE, (data) => {
     dispatch(
       lightsActions.lightStateResponse({ id: data.id, state: data.state })
     );

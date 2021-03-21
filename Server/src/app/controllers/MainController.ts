@@ -88,7 +88,7 @@ export class MainController implements SerialCommunicatorObserver {
       });
 
       // Set state of all lights in the group
-      socket.on(SocketMessage.toServer.GROUP_LIGHTS_SET, async (data) => {
+      socket.on(SocketMessage.toServer.LIGHTS_SET_GROUP, async (data) => {
         const { groupId } = data;
         const state = SwitchState.parse(data.state).toInt();
         const group = await database.group.findUnique({
@@ -107,7 +107,7 @@ export class MainController implements SerialCommunicatorObserver {
       });
 
       // Set state of all lights
-      socket.on(SocketMessage.toServer.ALL_LIGHTS_SET, async (data) => {
+      socket.on(SocketMessage.toServer.LIGHTS_SET_ALL, async (data) => {
         const state = SwitchState.parse(data.state).toInt();
         const lights = await database.light.findMany({});
         lights.forEach((light) => {

@@ -77,3 +77,8 @@ export const selectThermometerById = (id: number) =>
   createSelector(selectAllThermometers, (thermometers) =>
     thermometers.find((thermometer) => thermometer.id === id)
   );
+
+export const selectThermometersByGroupId = (groupId: string) =>
+  createSelector(selectAllThermometers, (thermometers) =>
+    thermometers.filter((thermometer) => thermometer.groupId === groupId)
+  );

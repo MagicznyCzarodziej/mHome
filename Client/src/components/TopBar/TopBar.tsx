@@ -7,9 +7,7 @@ import styles from './TopBar.module.sass';
 import Icon from '@mdi/react';
 import { mdiCog, mdiShieldOutline } from '@mdi/js';
 
-interface Props {}
-
-export const TopBar: React.FC<Props> = (props) => {
+export const TopBar = () => {
   const breadcrumbs = useBreadCrumbs();
 
   return (

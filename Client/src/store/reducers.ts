@@ -6,10 +6,12 @@ import { history } from './history';
 import { groupsReducer } from 'store/reducers/groupsReducer';
 import { lightsReducer } from 'store/reducers/lightsReducer';
 import { thermometersReducer } from 'store/reducers/thermometersReducer';
+import { reedsReducer } from 'store/reducers/reedsReducer';
 
 const elementsReducer = combineReducers({
   lights: lightsReducer,
   thermometers: thermometersReducer,
+  reeds: reedsReducer,
 });
 
 export default function createReducer(injectedReducers = {}) {

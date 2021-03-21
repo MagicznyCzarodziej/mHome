@@ -3,11 +3,13 @@ import { useHistory } from 'react-router';
 import { useSelector } from 'react-redux';
 import cx from 'classnames';
 
-import { DashboardGridTile } from 'types/DashboardGridTile';
+import { Group } from 'types/Group';
 import { LightService } from 'services/LightService';
 import { selectLightsByGroupId } from 'store/reducers/lightsReducer';
+import { selectReedsByGroupId } from 'store/reducers/reedsReducer';
+import { mapIconNameToPath } from 'utils/helpers';
 
-import styles from 'pages/Dashboard.module.sass';
+import styles from 'pages/Dashboard/Dashboard.module.sass';
 
 import { Icon } from '@mdi/react';
 import { mdiDoorOpen, mdiDoorClosedLock } from '@mdi/js';
@@ -16,13 +18,26 @@ const TILE_LOCK_TIME = 350;
 const MOVE_THRESHOLD = 0.7;
 const VELOCITY_THRESHOLD = 0.4;
 
-export const GridTile = (props: DashboardGridTile) => {
-  const { id, label, icon, lock } = props;
+interface Props {
+  group: Group;
+}
+
+const mapGroupToLockReedId: { [key: string]: number } = {
+  GARAGE_AND_OTHERS: 6,
+  VESTIBULE: 7,
+};
+
+export const GridTile = (props: Props) => {
+  const { group } = props;
   const history = useHistory();
 
-  const reeds: any[] = []; // temp- add selector
-  const lights = useSelector(selectLightsByGroupId(id));
+  const icon = mapIconNameToPath(group.icon);
+  const reeds = useSelector(selectReedsByGroupId(group.id));
+  const lights = useSelector(selectLightsByGroupId(group.id));
   const isAnyLightOn = lights.some((light) => light.state === 'ON');
+  const lockState =
+    reeds.find((reed) => reed.id === mapGroupToLockReedId[group.id])?.state ||
+    null;
 
   const tileRef = React.createRef<any>();
   const [fired, setFired] = useState(false);
@@ -42,7 +57,10 @@ export const GridTile = (props: DashboardGridTile) => {
       if (!touchStart.current) tileContent.style.transform = 'translateX(0)';
     }, TILE_LOCK_TIME);
 
-    LightService.setAllGroupLights(id, touchDirection === 1 ? 'ON' : 'OFF');
+    LightService.setAllGroupLights(
+      group.id,
+      touchDirection === 1 ? 'ON' : 'OFF'
+    );
     navigator.vibrate(50);
   };
 
@@ -95,11 +113,11 @@ export const GridTile = (props: DashboardGridTile) => {
 
   return (
     <div
-      key={id}
+      key={group.id}
       className={styles.grid__tile}
-      data-group-id={id}
+      data-group-id={group.id}
       onClick={() => {
-        history.push(`/group/${id}`);
+        history.push(`/group/${group.id}`);
       }}
       ref={tileRef}
       onTouchStart={handleTouchStart}
@@ -114,7 +132,7 @@ export const GridTile = (props: DashboardGridTile) => {
         >
           <Icon path={icon} size="10vw" />
         </div>
-        <div className={styles.tile__label}>{label}</div>
+        <div className={styles.tile__label}>{group.name}</div>
         <div className={styles.tile__lights}>
           {lights.map(
             (light) =>
@@ -132,14 +150,14 @@ export const GridTile = (props: DashboardGridTile) => {
           )}
         </div>
 
-        {lock === 'LOCKED' && (
+        {lockState === 'CLOSED' && (
           <div
             className={`${styles.tile__lock} ${styles['tile__lock--locked']}`}
           >
             <Icon path={mdiDoorClosedLock} size="1.5rem" />
           </div>
         )}
-        {lock === 'UNLOCKED' && (
+        {lockState === 'OPEN' && (
           <div
             className={`${styles.tile__lock} ${styles['tile__lock--unlocked']}`}
           >
