@@ -16,6 +16,7 @@ export const SocketMessage = {
   toServer: {
     LIGHT_SET: 'lights/set',
     LIGHTS_SET_GROUP: 'lights/set/group',
+    LIGHTS_SET_INSIDE: 'lights/set/inside',
     LIGHTS_SET_ALL: 'lights/set/all',
     BLIND_SET: 'blinds/set',
     BLIND_SET_GROUP: 'blinds/set/group',

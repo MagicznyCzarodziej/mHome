@@ -10,6 +10,7 @@ import { OnOff } from 'types/OnOff';
 import { createSocketAction } from 'store/utils';
 import { RootState } from 'store/configureStore';
 import { LightService } from 'services/LightService';
+import { SocketMessage } from 'services/Socket';
 
 interface LightsState {
   lights: Light[];
@@ -21,7 +22,20 @@ const initialState: LightsState = {
 
 //Actions
 const lightStateRequest = createSocketAction<{ id: number; state: OnOff }>(
-  'lights/set'
+  SocketMessage.toServer.LIGHT_SET
+);
+
+const lightsStateGroupRequest = createSocketAction<{
+  groupId: string;
+  state: OnOff;
+}>(SocketMessage.toServer.LIGHTS_SET_GROUP);
+
+const lightsStateInsideRequest = createSocketAction<{ state: OnOff }>(
+  SocketMessage.toServer.LIGHTS_SET_INSIDE
+);
+
+const lightsStateAllRequest = createSocketAction<{ state: OnOff }>(
+  SocketMessage.toServer.LIGHTS_SET_ALL
 );
 
 const fetchAllLights = createAsyncThunk('lights/fetchAllLights', async () => {
@@ -58,6 +72,9 @@ const lightsSlice = createSlice({
 export const lightsActions = {
   ...lightsSlice.actions,
   lightStateRequest,
+  lightsStateAllRequest,
+  lightsStateGroupRequest,
+  lightsStateInsideRequest,
   fetchAllLights,
 };
 export const lightsReducer = lightsSlice.reducer;

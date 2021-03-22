@@ -107,6 +107,27 @@ export class MainController implements SerialCommunicatorObserver {
       });
 
       // Set state of all lights
+      socket.on(SocketMessage.toServer.LIGHTS_SET_INSIDE, async (data) => {
+        const state = SwitchState.parse(data.state).toInt();
+        const lights = await database.light.findMany({
+          where: {
+            NOT: {
+              groupId: 'OUTSIDE',
+            },
+          },
+        });
+        lights.forEach((light) => {
+          const element = light.id;
+          const message = new SerialMessage(
+            SerialMessageType.LIGHT_SET,
+            element,
+            state,
+          );
+          this.serialCommunicator.send(message);
+        });
+      });
+
+      // Set state of all lights
       socket.on(SocketMessage.toServer.LIGHTS_SET_ALL, async (data) => {
         const state = SwitchState.parse(data.state).toInt();
         const lights = await database.light.findMany({});

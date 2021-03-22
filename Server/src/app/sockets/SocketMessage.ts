@@ -4,6 +4,8 @@ export const SocketMessage = {
     LIGHT_SET: 'lights/set',
     /** Client requested change of state of all lights in group */
     LIGHTS_SET_GROUP: 'lights/set/group',
+    /** Client requested change of state of all lights except OUTSIDE group */
+    LIGHTS_SET_INSIDE: 'lights/set/inside',
     /** Client requested change of state of all lights */
     LIGHTS_SET_ALL: 'lights/set/all',
     /** Client requested change of blind position */

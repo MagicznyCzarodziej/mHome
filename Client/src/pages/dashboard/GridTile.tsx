@@ -1,11 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { useHistory } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import cx from 'classnames';
 
 import { Group } from 'types/Group';
 import { LightService } from 'services/LightService';
-import { selectLightsByGroupId } from 'store/reducers/lightsReducer';
+import {
+  lightsActions,
+  selectLightsByGroupId,
+} from 'store/reducers/lightsReducer';
 import { selectReedsByGroupId } from 'store/reducers/reedsReducer';
 import { mapIconNameToPath } from 'utils/helpers';
 
@@ -30,6 +33,7 @@ const mapGroupToLockReedId: { [key: string]: number } = {
 export const GridTile = (props: Props) => {
   const { group } = props;
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const icon = mapIconNameToPath(group.icon);
   const reeds = useSelector(selectReedsByGroupId(group.id));
@@ -57,9 +61,11 @@ export const GridTile = (props: Props) => {
       if (!touchStart.current) tileContent.style.transform = 'translateX(0)';
     }, TILE_LOCK_TIME);
 
-    LightService.setAllGroupLights(
-      group.id,
-      touchDirection === 1 ? 'ON' : 'OFF'
+    dispatch(
+      lightsActions.lightsStateGroupRequest({
+        groupId: group.id,
+        state: touchDirection === 1 ? 'ON' : 'OFF',
+      })
     );
     navigator.vibrate(50);
   };

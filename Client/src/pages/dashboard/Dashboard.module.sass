@@ -152,15 +152,16 @@ $distanceFromBorder: 0.5rem
 
 .dashboard__controls
   display: grid
-  height: 4rem
   border-top: 1px solid $cGray800
   grid-template-columns: 1fr 1fr 1fr
 
 .controls__item
+  padding: 1rem 0
+
+.controls__buttons
   display: flex
   justify-content: center
   align-items: center
-  height: 100%
   color: $cGray500
   gap: 2rem
 
@@ -175,3 +176,9 @@ $distanceFromBorder: 0.5rem
   &:nth-child(2)
     border-right: 1px solid $cGray800
     border-left: 1px solid $cGray800
+
+.controls__label
+  margin-top: 0.75rem
+  text-align: center
+  font-size: 0.75rem
+  color: $cGray500
