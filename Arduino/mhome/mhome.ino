@@ -82,7 +82,7 @@ byte previousSwitchesState[SWITCHES_SIZE] = {LOW, LOW};
 unsigned long switchesTimes[SWITCHES_SIZE] = {0, 0}; // the last time the output pin was toggled
 
 // LIGHTS
-byte lights[LIGHTS_SIZE] = {3, 4, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13}; // LIGHTS //TODO: Change this to lightsPin
+byte lights[LIGHTS_SIZE] = {3, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12}; // LIGHTS //TODO: Change this to lightsPin
 byte lightsValue[LIGHTS_SIZE];
 int mapSwitchToLight[SWITCHES_SIZE] = {0, 1};
 
@@ -104,6 +104,10 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 void setup() {
+  // Set built in led to be disabled by default
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+
   Serial.begin(9600);
 
   // SWITCHES
