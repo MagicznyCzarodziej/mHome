@@ -44,4 +44,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/:id/temperatures', async (req, res) => {
+  const id = Number.parseInt(req.params.id);
+
+  try {
+    const temperatures = await database.temperature.findMany({
+      where: {
+        thermometerId: id,
+      },
+      select: {
+        id: true,
+        value: true,
+        timestamp: true,
+      },
+    });
+    res.send(temperatures);
+  } catch (error) {
+    return res.send({ error: 'Invalid ID' });
+  }
+});
+
 export { router as thermometers };
