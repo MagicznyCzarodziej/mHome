@@ -65,10 +65,10 @@ void sendMessage(char command, int element, int value, int aux) {
       PINS GROUPS
 ------------------------------------ */
 
-const byte SWITCHES_SIZE = 2;
+const byte SWITCHES_SIZE = 1;
 const byte LIGHTS_SIZE = 18;
 const byte THERMOMETERS_SIZE = 2;
-const byte REEDS_SIZE = 2;
+const byte REEDS_SIZE = 1;
 
 const byte ONE_WIRE_BUS = 2; // OneWire pin
 #define TEMPERATURE_PRECISION 9
@@ -76,15 +76,15 @@ const byte ONE_WIRE_BUS = 2; // OneWire pin
 // SWITCHES
 const unsigned long SWITCH_DEBOUNCE_TIME = 300;
 
-byte switchesPins[SWITCHES_SIZE] = {7, 8};
-byte switchesState[SWITCHES_SIZE] = {LOW, LOW}; // the current reading from the input pin
-byte previousSwitchesState[SWITCHES_SIZE] = {LOW, LOW};
-unsigned long switchesTimes[SWITCHES_SIZE] = {0, 0}; // the last time the output pin was toggled
+byte switchesPins[SWITCHES_SIZE] = {7};
+byte switchesState[SWITCHES_SIZE] = {LOW}; // the current reading from the input pin
+byte previousSwitchesState[SWITCHES_SIZE] = {LOW};
+unsigned long switchesTimes[SWITCHES_SIZE] = {0}; // the last time the output pin was toggled
 
 // LIGHTS
 byte lights[LIGHTS_SIZE] = {3, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12}; // LIGHTS //TODO: Change this to lightsPin
 byte lightsValue[LIGHTS_SIZE];
-int mapSwitchToLight[SWITCHES_SIZE] = {0, 1};
+int mapSwitchToLight[SWITCHES_SIZE] = {0};
 
 // THEREMOMETERS
 byte thermometers[THERMOMETERS_SIZE][8] = {
@@ -93,7 +93,12 @@ byte thermometers[THERMOMETERS_SIZE][8] = {
 };
 
 // REEDS
-byte reeds[REEDS_SIZE]; // REED SWTICH
+const unsigned long REEDS_DEBOUNCE_TIME = 300;
+
+byte reedsPins[REEDS_SIZE] = {8}; // REED SWTICH
+byte reedsState[REEDS_SIZE] = {LOW};
+byte previousReedsState[REEDS_SIZE] = {LOW};
+unsigned long reedsTimes[REEDS_SIZE] = {0};
 
 /* ------------------------------------
       SETUP
@@ -130,10 +135,10 @@ void setup() {
     sensors.setResolution(thermometers[i], TEMPERATURE_PRECISION);
   }
 
-  // REED SWITCHES PINS
-  // reed[0] = 13; // Salon/Okno/1 (Północ)
-  // reed[1] = 14; // Salon/Okno/2 (Północ)
-  // reed[2] = 15; // Kuchnia/Okno/1
+  // REEDS
+  for (byte i = 0; i < REEDS_SIZE; i++) {
+    pinMode(reedsPins[i], INPUT);
+  }
 }
 
 /* ------------------------------------
@@ -158,6 +163,23 @@ void loop() {
     }
 
     previousSwitchesState[i] = switchesState[i];
+  }
+
+  // REEDS
+  for (byte i = 0; i < REEDS_SIZE; i++) {
+    byte state = digitalRead(reedsPins[i]);
+    if (state != previousReedsState[i])
+      reedsTimes[i] = millis();
+
+    if (millis() - reedsTimes[i] > REEDS_DEBOUNCE_TIME) {
+      if (state != reedsState[i]) {
+        reedsState[i] = state;
+        byte value = state == LOW ? 0 : 1;
+        sendMessage(CMD_REED_RESPONSE, i, value, 0);
+      }
+    }
+
+    previousReedsState[i] = state;
   }
 
   // SERIAL

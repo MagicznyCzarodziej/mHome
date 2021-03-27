@@ -11,6 +11,7 @@ import { SerialCommunicator } from 'app/SerialCommunicator/SerialCommunicator';
 import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObserver';
 import { LightController } from 'app/controllers/LightController';
 import { ThermometerController } from 'app/controllers/ThermometerController';
+import { ReedController } from 'app/controllers/ReedController';
 import { SocketMessage } from 'app/sockets/SocketMessage';
 import { SwitchState } from 'app/utils/SwitchState';
 import { Logger } from 'app/utils/Logger';
@@ -22,6 +23,7 @@ export class MainController implements SerialCommunicatorObserver {
   private serialCommunicator: SerialCommunicator;
   private lightController: LightController;
   private thermometerController: ThermometerController;
+  private reedController: ReedController;
 
   constructor(private logger: Logger, private httpServer: Server) {
     this.serialCommunicator = Container.get(SerialCommunicator);
@@ -34,6 +36,7 @@ export class MainController implements SerialCommunicatorObserver {
     });
     this.lightController = new LightController(this.io);
     this.thermometerController = new ThermometerController(this.io);
+    this.reedController = new ReedController(this.io);
     this.handleSockets();
     registerScripts();
   }
@@ -50,6 +53,12 @@ export class MainController implements SerialCommunicatorObserver {
         const lightId = message.element;
         const state = SwitchState.parse(message.value).toString();
         this.lightController.switch(lightId, state);
+        break;
+      }
+      case SerialMessageType.REED_RESPONSE: {
+        const reedId = message.element;
+        const state = message.value === 1 ? 'CLOSED' : 'OPEN';
+        this.reedController.setReed(reedId, state);
         break;
       }
     }

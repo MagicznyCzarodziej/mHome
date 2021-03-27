@@ -10,6 +10,8 @@ export enum SerialMessageType {
   THERMOMETER_REQUEST = 'T',
   /** Message from Arduino with new temperature reading */
   THERMOMETER_RESPONSE = 'T',
+  /** Message from Arduino with new reed state */
+  REED_RESPONSE = 'R',
 }
 
 export const SerialMessageConstants = {

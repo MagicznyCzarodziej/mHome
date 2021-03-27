@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { API_IP } from 'utils/constants';
 import { lightsActions } from 'store/reducers/lightsReducer';
 import { thermometersActions } from 'store/reducers/thermometersReducer';
+import { reedsActions } from 'store/reducers/reedsReducer';
 
 const socket = io(API_IP);
 
@@ -47,6 +48,13 @@ export const createSocketListeners = (dispatch: Dispatch, socket: Socket) => {
   socket.on(SocketMessage.toClient.LIGHT_STATE, (data) => {
     dispatch(
       lightsActions.lightStateResponse({ id: data.id, state: data.state })
+    );
+  });
+
+  // Reed state changed
+  socket.on(SocketMessage.toClient.REED_STATE, (data) => {
+    dispatch(
+      reedsActions.reedStateResponse({ id: data.id, state: data.state })
     );
   });
 };
