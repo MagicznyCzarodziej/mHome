@@ -14,7 +14,7 @@ logger.info(
 const serialCommunicator = new SerialCommunicator(
   new StandardLogger('SerialCommunicator'),
   serialPath || 'COM5',
-  9600,
+  57600,
 );
 // Wait for serial port to open before running app
 serialCommunicator

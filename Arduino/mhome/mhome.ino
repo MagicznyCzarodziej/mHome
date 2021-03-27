@@ -108,7 +108,9 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
-  Serial.begin(9600);
+  // Baud rate of 9600 causes errors when receiving large number of messages
+  // in short time (eg. when switching all lights on and off)
+  Serial.begin(57600);
 
   // SWITCHES
   for (byte i = 0; i < SWITCHES_SIZE; i++) {
