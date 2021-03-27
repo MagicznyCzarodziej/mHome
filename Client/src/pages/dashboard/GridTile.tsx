@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import cx from 'classnames';
 
 import { Group } from 'types/Group';
-import { LightService } from 'services/LightService';
 import {
   lightsActions,
   selectLightsByGroupId,
