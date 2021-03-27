@@ -23,7 +23,7 @@ router.get('/:id', async (req, res) => {
     ? {
         temperatures: {
           where: {
-            datetime: {
+            timestamp: {
               gte: moment(from?.toString()).startOf('day').toDate(),
             },
           },

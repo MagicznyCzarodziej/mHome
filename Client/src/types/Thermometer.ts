@@ -10,5 +10,5 @@ export interface Thermometer {
 export interface TemperatureEntry {
   id: number;
   value: number;
-  datetime: string;
+  timestamp: string;
 }

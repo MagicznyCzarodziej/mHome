@@ -11,14 +11,14 @@ export class ThermometerController {
   async addTemperature(
     thermometerId: number,
     temperature: number,
-    datetime: Date = new Date(),
+    timestamp: Date = new Date(),
   ) {
     try {
       const results = await database.$transaction([
         database.temperature.create({
           data: {
             value: temperature,
-            datetime,
+            timestamp,
             thermometerId,
           },
         }),
@@ -37,7 +37,7 @@ export class ThermometerController {
         id: temperatureId,
         thermometerId,
         value: temperature,
-        datetime,
+        timestamp,
       });
     } catch (error) {
       this.logger.error(error);
