@@ -26,7 +26,7 @@ interface Props {
 
 const mapGroupToLockReedId: { [key: string]: number } = {
   GARAGE_AND_OTHERS: 6,
-  VESTIBULE: 7,
+  VESTIBULE: 0,
 };
 
 export const GridTile = (props: Props) => {
@@ -147,12 +147,17 @@ export const GridTile = (props: Props) => {
           )}
         </div>
         <div className={styles.tile__reeds}>
-          {reeds.map(
-            (reed) =>
-              reed.state === 'OPEN' && (
-                <span key={reed.id} className={styles['reed-dot']} />
-              )
-          )}
+          {reeds
+            .filter(
+              // Don't show reed dot if showing door icon
+              (reed) => !Object.values(mapGroupToLockReedId).includes(reed.id)
+            )
+            .map(
+              (reed) =>
+                reed.state === 'OPEN' && (
+                  <span key={reed.id} className={styles['reed-dot']} />
+                )
+            )}
         </div>
 
         {lockState === 'CLOSED' && (
