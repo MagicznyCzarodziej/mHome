@@ -7,6 +7,7 @@ import { groupsReducer } from 'store/reducers/groupsReducer';
 import { lightsReducer } from 'store/reducers/lightsReducer';
 import { thermometersReducer } from 'store/reducers/thermometersReducer';
 import { reedsReducer } from 'store/reducers/reedsReducer';
+import { settingsReducer } from 'store/reducers/settingsReducer';
 
 const elementsReducer = combineReducers({
   lights: lightsReducer,
@@ -20,6 +21,7 @@ export default function createReducer(injectedReducers = {}) {
     ...injectedReducers,
     groups: groupsReducer,
     elements: elementsReducer,
+    settings: settingsReducer,
   });
 
   return rootReducer;
