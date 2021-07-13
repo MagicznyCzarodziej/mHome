@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Dashboard } from 'pages/Dashboard/Dashboard';
 import { Group } from 'pages/Group/Group';
 import { Thermometers } from 'pages/Thermometers/Thermometers';
+import { Thermometer } from 'pages/Thermometer/Thermometer';
 import { Settings } from 'pages/Settings/Settings';
 
 import { groupsActions } from 'store/reducers/groupsReducer';
@@ -27,6 +28,9 @@ export const App = () => {
       <Switch>
         <Route exact path="/thermometers">
           <Thermometers />
+        </Route>
+        <Route exact path="/thermometer/:id">
+          <Thermometer />
         </Route>
         <Route exact path="/group/:groupId">
           <Group />

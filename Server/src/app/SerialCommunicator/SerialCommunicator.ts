@@ -40,14 +40,14 @@ export class SerialCommunicator {
 
       // Received data from serial port
       this.parser.on('data', (data: string) => {
-        this.logger.info(
-          `Received message: ${chalk.magenta(
-            SerialMessage.fromString(data).toString(true),
-          )} (original: ${data.trim()})`,
-        );
-
-        // Notify all observers
         try {
+          this.logger.info(
+            `Received message: ${chalk.magenta(
+              SerialMessage.fromString(data).toString(true),
+            )} (original: ${data.trim()})`,
+          );
+
+          // Notify all observers
           const message = SerialMessage.fromString(data);
           this.notify(message);
         } catch (error) {

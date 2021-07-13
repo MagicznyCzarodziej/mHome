@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 
 import { selectAllThermometers } from 'store/reducers/thermometersReducer';
 
@@ -13,7 +14,9 @@ export const Thermometers = () => {
     <DefaultLayout>
       <div className={styles.thermometers}>
         {allThermometers.map((thermometer) => (
-          <ThermometerItem key={thermometer.id} thermometer={thermometer} />
+          <NavLink to={`/thermometer/${thermometer.id}`} key={thermometer.id}>
+            <ThermometerItem thermometer={thermometer} />
+          </NavLink>
         ))}
       </div>
     </DefaultLayout>
