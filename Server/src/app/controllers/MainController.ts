@@ -5,6 +5,7 @@ import { Server as SocketServer, Socket } from 'socket.io';
 import { database } from 'database/database';
 import {
   SerialMessage,
+  SerialMessageSource,
   SerialMessageType,
 } from 'app/SerialCommunicator/SerialMessage';
 import { SerialCommunicator } from 'app/SerialCommunicator/SerialCommunicator';
@@ -89,6 +90,7 @@ export class MainController implements SerialCommunicatorObserver {
           const element = data.id;
           const state = SwitchState.parse(data.state).toInt();
           const message = new SerialMessage(
+            SerialMessageSource.SOCKETS,
             SerialMessageType.LIGHT_SET,
             element,
             state,
@@ -110,6 +112,7 @@ export class MainController implements SerialCommunicatorObserver {
         group?.lights.forEach((light: any) => {
           const element = light.id;
           const message = new SerialMessage(
+            SerialMessageSource.SOCKETS,
             SerialMessageType.LIGHT_SET,
             element,
             state,
@@ -131,6 +134,7 @@ export class MainController implements SerialCommunicatorObserver {
         lights.forEach((light) => {
           const element = light.id;
           const message = new SerialMessage(
+            SerialMessageSource.SOCKETS,
             SerialMessageType.LIGHT_SET,
             element,
             state,
@@ -146,6 +150,7 @@ export class MainController implements SerialCommunicatorObserver {
         lights.forEach((light) => {
           const element = light.id;
           const message = new SerialMessage(
+            SerialMessageSource.SOCKETS,
             SerialMessageType.LIGHT_SET,
             element,
             state,

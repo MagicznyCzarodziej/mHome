@@ -6,12 +6,13 @@ export interface Logger {
 }
 
 export class StandardLogger implements Logger {
-  constructor(private author: string) {}
+  constructor(private author: string, private infoDisabled?: boolean) {}
 
   info(message: string): void {
-    console.log(
-      `${chalk.bgBlue(' INFO ')} ${chalk.blue(this.author)}: ${message}`,
-    );
+    if (!this.infoDisabled)
+      console.log(
+        `${chalk.bgBlue(' INFO ')} ${chalk.blue(this.author)}: ${message}`,
+      );
   }
 
   error(message: string): void {

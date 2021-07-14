@@ -15,93 +15,35 @@ export const CreateScenario = () => {
       id: 1,
       parentEntry: null,
       conditions: [
-        // {
-        //   type: 'TEMPERATURE_ABOVE',
-        //   id: 1,
-        //   value: 25,
-        // },
         {
-          type: 'REED',
           id: 1,
+          type: 'REED',
+          elementId: 0,
           value: 'CLOSED',
+        },
+        {
+          id: 2,
+          type: 'TIME_AFTER',
+          value: '21:00',
         },
       ],
       actions: [
         {
           id: 1,
+          elementId: 1,
           type: 'SET_LIGHT',
-        },
-        {
-          id: 4,
-          type: 'SET_LIGHT',
+          value: 'ON',
         },
       ],
     },
-    // {
-    //   id: 2,
-    //   parentEntry: 1,
-    //   conditions: [
-    //     {
-    //       type: 'REED',
-    //       id: 1,
-    //       value: 'OPEN',
-    //     },
-    //     {
-    //       type: 'TIME',
-    //       value: 'AFTER_SUNSET',
-    //     },
-    //   ],
-    //   actions: [
-    //     {
-    //       id: 2,
-    //       type: 'SET_LIGHT',
-    //     },
-    //     {
-    //       id: 3,
-    //       type: 'SET_BLINDS',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 4,
-    //   parentEntry: 1,
-    //   conditions: [
-    //     {
-    //       type: 'TIME',
-    //       value: '20:00',
-    //     },
-    //   ],
-    //   actions: [
-    //     {
-    //       id: 6,
-    //       type: 'SET_BLINDS',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 3,
-    //   parentEntry: 2,
-    //   conditions: [
-    //     {
-    //       type: 'TIME',
-    //       value: 'BEFORE_SUNSET',
-    //     },
-    //   ],
-    //   actions: [
-    //     {
-    //       id: 5,
-    //       type: 'SET_BLINDS',
-    //     },
-    //   ],
-    // },
   ]);
 
   useEffect(() => {
     dispatch(
       scenariosActions.createScenario({
-        name: 'Trzy',
+        name: 'Drugi',
         active: true,
-        description: 'Opis 3',
+        description: 'Costam',
         entries: entries,
       })
     );

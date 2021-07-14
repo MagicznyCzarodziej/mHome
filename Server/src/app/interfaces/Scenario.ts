@@ -15,12 +15,26 @@ export interface ScenarioEntry {
 
 export interface ScenarioEntryCondition {
   id: number;
-  type: string;
+  type: ScenarioConditionType;
   elementId?: number;
   value: number | string;
 }
 
 export interface ScenarioEntryAction {
   id: number;
-  type: string;
+  type: ScenarioActionType;
+}
+
+export enum ScenarioConditionType {
+  LIGHT_STATE = 'LIGHT_STATE',
+  REED = 'REED',
+  TEMPERATURE_BELOW = 'TEMPERATURE_BELOW',
+  TEMPERATURE_ABOVE = 'TEMPERATURE_ABOVE',
+  TIME_BEFORE = 'TIME_BEFORE',
+  TIME_AFTER = 'TIME_AFTER',
+  TIME = 'TIME',
+}
+
+export enum ScenarioActionType {
+  SET_LIGHT = 'SET_LIGHT',
 }
