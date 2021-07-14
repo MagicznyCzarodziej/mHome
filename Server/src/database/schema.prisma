@@ -79,6 +79,14 @@ model ReedHistory {
   reedId    Int
 }
 
+model Scenario {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  active      Boolean
+  entries     String
+}
+
 /// Log every client connection
 model Connection {
   id             Int       @id

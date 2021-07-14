@@ -12,6 +12,7 @@ import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObs
 import { LightController } from 'app/controllers/LightController';
 import { ThermometerController } from 'app/controllers/ThermometerController';
 import { ReedController } from 'app/controllers/ReedController';
+import { ScenarioController } from 'app/controllers/ScenarioController';
 import { SocketMessage } from 'app/sockets/SocketMessage';
 import { SwitchState } from 'app/utils/SwitchState';
 import { Logger } from 'app/utils/Logger';
@@ -24,6 +25,7 @@ export class MainController implements SerialCommunicatorObserver {
   private lightController: LightController;
   private thermometerController: ThermometerController;
   private reedController: ReedController;
+  private scenarioController: ScenarioController;
 
   constructor(private logger: Logger, private httpServer: Server) {
     this.serialCommunicator = Container.get(SerialCommunicator);
@@ -37,6 +39,7 @@ export class MainController implements SerialCommunicatorObserver {
     this.lightController = new LightController(this.io);
     this.thermometerController = new ThermometerController(this.io);
     this.reedController = new ReedController(this.io);
+    this.scenarioController = new ScenarioController();
     this.handleSockets();
     registerScripts();
   }

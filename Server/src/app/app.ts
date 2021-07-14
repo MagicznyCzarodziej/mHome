@@ -1,5 +1,6 @@
 import Express from 'express';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 import socketIoClient from 'socket.io-client';
 import { Server } from 'http';
 import 'reflect-metadata';
@@ -19,7 +20,7 @@ export default class App {
 
   constructor(port: number) {
     this.logger = new StandardLogger('Express');
-    this.api = Express().use(cors());
+    this.api = Express().use(cors()).use(bodyParser.json());
     const server = new Server(this.api);
 
     new MainController(new StandardLogger('MainController'), server);

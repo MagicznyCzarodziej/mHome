@@ -24,18 +24,24 @@ export class SerialCommunicator {
         this.serialPath,
         { baudRate: this.baudRate },
         (error) => {
-          if (error)
+          if (error) {
             this.logger.error(
               `Cannot open serial port ${this.serialPath} (${error})`,
             );
-          reject();
+            reject(error);
+          }
         },
       );
       this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
 
       this.port.on('open', () => {
-        this.logger.info('SerialPort open');
-        resolve();
+        // Wait for Arduino to restart
+        const delay = 1500;
+        this.logger.info(`Arduino restarting (waiting ${delay}ms)`);
+        setTimeout(() => {
+          this.logger.info('SerialPort open');
+          resolve();
+        }, delay);
       });
 
       // Received data from serial port

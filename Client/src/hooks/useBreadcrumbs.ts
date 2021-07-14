@@ -5,6 +5,8 @@ export const useBreadCrumbs = (): string => {
   const trimmedPath = path.slice(1);
 
   const mapping: { [key: string]: string } = {
+    scenarios: 'Scenariusze',
+    'scenarios/new': 'Nowy scenariusz',
     thermometers: 'Termometry',
     settings: 'Ustawienia',
     security: 'Bezpieczeństwo',
