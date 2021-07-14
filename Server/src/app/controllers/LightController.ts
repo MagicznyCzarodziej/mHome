@@ -17,6 +17,7 @@ export class LightController {
   async switch(id: number, state: OnOff) {
     try {
       const set = async () => {
+        // eslint-disable-next-line @typescript-eslint/camelcase
         const queries: Prisma.Prisma__LightClient<Light>[] = [];
         this.buffer.forEach((light) => {
           queries.push(
