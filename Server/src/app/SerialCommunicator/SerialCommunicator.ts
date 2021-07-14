@@ -4,7 +4,10 @@ const ReadLine = require('@serialport/parser-readline');
 import chalk from 'chalk';
 
 import { Logger } from 'app/utils/Logger';
-import { SerialMessage } from 'app/SerialCommunicator/SerialMessage';
+import {
+  SerialMessage,
+  SerialMessageType,
+} from 'app/SerialCommunicator/SerialMessage';
 import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObserver';
 
 export class SerialCommunicator {
@@ -24,32 +27,39 @@ export class SerialCommunicator {
         this.serialPath,
         { baudRate: this.baudRate },
         (error) => {
-          if (error)
+          if (error) {
             this.logger.error(
               `Cannot open serial port ${this.serialPath} (${error})`,
             );
-          reject();
+            reject(error);
+          }
         },
       );
       this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
 
       this.port.on('open', () => {
+        // Serial port is open, but may not be ready to receive commands yet
         this.logger.info('SerialPort open');
-        resolve();
       });
 
       // Received data from serial port
       this.parser.on('data', (data: string) => {
         try {
+          const message = SerialMessage.fromString(data);
           this.logger.info(
             `Received message: ${chalk.magenta(
-              SerialMessage.fromString(data).toString(true),
+              message.toString(true),
             )} (original: ${data.trim()})`,
           );
 
-          // Notify all observers
-          const message = SerialMessage.fromString(data);
-          this.notify(message);
+          if (message.type === SerialMessageType.CMD_READY) {
+            // If Arduino is ready to receive commands resolve promise
+            this.logger.info('SerialPort ready');
+            resolve();
+          } else {
+            // Notify all observers
+            this.notify(message);
+          }
         } catch (error) {
           this.logger.error(error);
           this.logger.error('Invalid message: ' + data);

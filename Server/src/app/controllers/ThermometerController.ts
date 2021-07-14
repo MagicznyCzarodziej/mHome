@@ -1,7 +1,9 @@
-import { SocketMessage } from 'app/sockets/SocketMessage';
-import { database } from 'database/database';
 import SocketIO from 'socket.io';
+
+import { database } from 'database/database';
+import { SocketMessage } from 'app/sockets/SocketMessage';
 import { StandardLogger } from 'app/utils/Logger';
+import { EventBus } from 'app/EventBus';
 
 export class ThermometerController {
   private logger = new StandardLogger('ThermometerController');
@@ -32,9 +34,18 @@ export class ThermometerController {
         }),
       ]);
 
-      const temperatureId = results[0].id;
+      const [newTemperature, thermometer] = results;
+
+      EventBus.pushEvent({
+        type: 'THERMOMETER',
+        payload: {
+          elementId: thermometer.id,
+          value: thermometer.latestTemperature,
+        },
+      });
+
       this.io.emit(SocketMessage.toClient.THERMOMETER_NEW_TEMPERATURE, {
-        id: temperatureId,
+        id: newTemperature.id,
         thermometerId,
         value: temperature,
         timestamp,

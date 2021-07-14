@@ -13,7 +13,7 @@ logger.info(
 
 const serialCommunicator = new SerialCommunicator(
   new StandardLogger('SerialCommunicator'),
-  serialPath || 'COM5',
+  serialPath || 'COM3',
   57600,
 );
 // Wait for serial port to open before running app
@@ -25,6 +25,8 @@ serialCommunicator
   })
   .catch((error) => {
     // Error opening serial port
+    logger.error(error);
+
     logger.info(
       `Exiting | ${new Date().toLocaleString().replace('T', ' ')} local time`,
     );

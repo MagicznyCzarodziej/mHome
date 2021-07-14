@@ -3,6 +3,7 @@ import { Container } from 'typedi';
 import { SerialCommunicator } from 'app/SerialCommunicator/SerialCommunicator';
 import {
   SerialMessage,
+  SerialMessageSource,
   SerialMessageType,
 } from 'app/SerialCommunicator/SerialMessage';
 import { Script } from './ScriptInterface';
@@ -19,6 +20,7 @@ export class RandomScript implements Script {
     });
 
     const message = new SerialMessage(
+      SerialMessageSource.SCRIPT,
       SerialMessageType.LIGHT_SET,
       0,
       light?.state === 'ON' ? 0 : 1,

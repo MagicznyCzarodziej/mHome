@@ -3,6 +3,7 @@ import { Container } from 'typedi';
 import { SerialCommunicator } from 'app/SerialCommunicator/SerialCommunicator';
 import {
   SerialMessage,
+  SerialMessageSource,
   SerialMessageType,
 } from 'app/SerialCommunicator/SerialMessage';
 import { Script } from './ScriptInterface';
@@ -12,9 +13,14 @@ export class ReadTemperatures implements Script {
 
   public execute() {
     const serialCommunicator = Container.get(SerialCommunicator);
-    const message = new SerialMessage(SerialMessageType.THERMOMETER_REQUEST, 0);
+    const message = new SerialMessage(
+      SerialMessageSource.SCRIPT,
+      SerialMessageType.THERMOMETER_REQUEST,
+      0,
+    );
     serialCommunicator.send(message);
     const message2 = new SerialMessage(
+      SerialMessageSource.SCRIPT,
       SerialMessageType.THERMOMETER_REQUEST,
       1,
     );

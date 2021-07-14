@@ -1,4 +1,25 @@
-import { SerialMessageConstants } from './SerialMessage';
+import {
+  SerialMessageConstants,
+  SerialMessageId,
+  SerialMessageSource,
+} from './SerialMessage';
+
+/** Returns next id for SerialMessage
+ * @examples `'S00'`, `'C1f'`, `'W2A'`
+ */
+export const getNextSerialMessageId = (() => {
+  let counter = 0;
+  const source =
+    '0123456789abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ';
+
+  return function next(type: SerialMessageSource): SerialMessageId {
+    const first = source[Math.floor(counter / source.length)];
+    const second = source[counter % source.length];
+    counter++;
+    if (counter >= source.length ** 2) counter = 0;
+    return `${type}${first}${second}`;
+  };
+})();
 
 /**
  * Temperature sent from Arduino is multiplied by 10 to preserve decimal part of reading.

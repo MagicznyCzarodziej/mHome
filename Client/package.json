@@ -23,6 +23,7 @@
     "classnames": "^2.2.6",
     "connected-react-router": "^6.9.1",
     "history": "^5.0.0",
+    "immer": "^9.0.5",
     "luxon": "^1.26.0",
     "node-sass": "4.14.1",
     "prettier": "^2.2.1",
@@ -35,6 +36,7 @@
     "redux-injectors": "^1.3.0",
     "socket.io-client": "^4.0.0",
     "typescript": "^4.0.3",
+    "use-immer": "^0.6.0",
     "victory": "^35.4.12"
   },
   "scripts": {

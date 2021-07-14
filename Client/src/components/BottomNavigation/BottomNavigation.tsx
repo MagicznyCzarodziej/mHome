@@ -3,7 +3,11 @@ import { NavLink } from 'react-router-dom';
 
 import styles from './BottomNavigation.module.sass';
 import Icon from '@mdi/react';
-import { mdiStarOutline, mdiViewGridOutline, mdiThermometerLow } from '@mdi/js';
+import {
+  mdiClipboardText,
+  mdiViewGridOutline,
+  mdiThermometerLow,
+} from '@mdi/js';
 
 interface Props {}
 
@@ -11,11 +15,11 @@ export const BottomNavigation: React.FC<Props> = (props) => {
   return (
     <div className={styles.menu}>
       <NavLink
-        to="/favourites"
+        to="/scenarios"
         activeClassName={styles['menu__item--active']}
         className={styles.menu__item}
       >
-        <Icon size="1.7rem" path={mdiStarOutline} />
+        <Icon size="1.7rem" path={mdiClipboardText} />
       </NavLink>
       <NavLink
         exact

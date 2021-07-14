@@ -8,6 +8,7 @@
       COMMANDS
 ------------------------------------ */
 
+#define CMD_READY 'A' // Arduino is ready to listen for commands
 #define CMD_INVALID 'X'
 #define CMD_ERROR 'Y' // TODO: Merge INVALID and ERROR into one command?
 
@@ -25,11 +26,14 @@
 #define CMD_REED_REQUEST 'R'
 #define CMD_REED_RESPONSE 'R'
 
+// RequestId to use when message is not a response to request
+#define NO_REQUEST_ID "A00"
+
 /* ------------------------------------
       MESSAGE
 ------------------------------------ */
 
-const byte MESSAGE_LENGTH = 10;
+const byte MESSAGE_LENGTH = 13;
 char messageBuffer[MESSAGE_LENGTH];
 byte messageIndex = 0;
 
@@ -48,9 +52,10 @@ String toStringWithLeadingZeros(int number) {
   return str;
 }
 
-void sendMessage(char command, int element, int value, int aux) {
+void sendMessage(String requestId, char command, int element, int value, int aux) {
   String msg = ">";
 
+  msg.concat(requestId);
   msg.concat(command);
   msg.concat(toStringWithLeadingZeros(element));
   msg.concat(toStringWithLeadingZeros(value));
@@ -116,6 +121,7 @@ void setup() {
   // Baud rate of 9600 causes errors when receiving large number of messages
   // in short time (eg. when switching all lights on and off)
   Serial.begin(57600);
+  sendMessage(NO_REQUEST_ID, CMD_READY, 0, 0, 0);
 
   // SWITCHES
   for (byte i = 0; i < SWITCHES_SIZE; i++) {
@@ -175,7 +181,7 @@ void loop() {
       if (state != reedsState[i]) {
         reedsState[i] = state;
         byte value = state == LOW ? 0 : 1;
-        sendMessage(CMD_REED_RESPONSE, i, value, 0);
+        sendMessage(NO_REQUEST_ID, CMD_REED_RESPONSE, i, value, 0);
       }
     }
 
@@ -212,41 +218,44 @@ void loop() {
 ------------------------------------ */
 
 void processMessage() {
-  char command = messageBuffer[0];
+  char requestId[4];
+  char command = messageBuffer[3];
   char element[4];
   char value[4];
   char auxilary[4];
 
-  strncpy(element, messageBuffer + 1, 3);
-  strncpy(value, messageBuffer + 4, 3);
-  strncpy(auxilary, messageBuffer + 7, 3);
+  strncpy(requestId, messageBuffer, 3);
+  strncpy(element, messageBuffer + 4, 3);
+  strncpy(value, messageBuffer + 7, 3);
+  strncpy(auxilary, messageBuffer + 10, 3);
 
+  requestId[3] = '\0';
   element[3] = '\0';
   value[3] = '\0';
   auxilary[3] = '\0';
 
-  int id = atoi(element);
+  int elementId = atoi(element);
   int val = atoi(value);
 
   switch (command) {
     case CMD_LIGHT_SET:
-      setLight(id, val);
+      setLight(requestId, elementId, val);
       break;
     case CMD_LIGHT_QUERY:
-      requestLight(id);
+      requestLight(requestId, elementId);
       break;
     case CMD_THERMOMETER_REQUEST:
-      requestThermometer(id);
+      requestThermometer(requestId, elementId);
       break;
     default:
-      sendMessage(CMD_ERROR, 0, 0, 0);
+      sendMessage(requestId, CMD_ERROR, 0, 0, 0);
   }
 }
 
 void invalidMessage() {
   resetMessage();
 
-  sendMessage(CMD_INVALID, 0, 0, 0);
+  sendMessage(NO_REQUEST_ID, CMD_INVALID, 0, 0, 0);
 }
 
 /* ------------------------------------
@@ -255,37 +264,41 @@ void invalidMessage() {
 
 /* ---- LIGHTS ----*/
 
-void requestLight(int id) {
+void requestLight(String requestId, int id) {
   if (id >= LIGHTS_SIZE) { // Invalid element ID
-    sendMessage(CMD_ERROR, id, 0, 0);
+    sendMessage(requestId, CMD_ERROR, id, 0, 0);
     return;
   }
 
   int value = lightsValue[id];
-  sendMessage(CMD_LIGHT_RESPONSE, id, value, 0);
+  sendMessage(requestId, CMD_LIGHT_RESPONSE, id, value, 0);
 }
+
 void setLight(int id, int value) {
+  setLight(NO_REQUEST_ID, id, value);
+}
+void setLight(String requestId, int id, int value) {
   if (id >= LIGHTS_SIZE) { // Invalid element ID
-    sendMessage(CMD_ERROR, id, 0, 0);
+    sendMessage(requestId, CMD_ERROR, id, 0, 0);
     return;
   }
 
   if (value != 0 && value != 1) { // Invalid state
-    sendMessage(CMD_ERROR, 0, value, 0);
+    sendMessage(requestId, CMD_ERROR, 0, value, 0);
     return;
   }
 
   lightsValue[id] = value;
   bool state = value == 1 ? RELAY_ON : RELAY_OFF;
   digitalWrite(lights[id], state);
-  sendMessage(CMD_LIGHT_RESPONSE, id, value, 0);
+  sendMessage(requestId, CMD_LIGHT_RESPONSE, id, value, 0);
 }
 
 /* ---- THERMOMETERS ---- */
 
-void requestThermometer(int id) {
+void requestThermometer(String requestId, int id) {
   if (id >= THERMOMETERS_SIZE) { // Invalid element ID
-    sendMessage(CMD_ERROR, id, 0, 0);
+    sendMessage(requestId, CMD_ERROR, id, 0, 0);
     return;
   }
 
@@ -293,5 +306,5 @@ void requestThermometer(int id) {
   float tempC = sensors.getTempC(thermometers[id]);
   int intTempC = tempC * 10; // Multiply by 10 to preserve decimal value
   int belowZeroFlag = tempC < 0 ? 1 : 0;
-  sendMessage(CMD_THERMOMETER_RESPONSE, id, intTempC, belowZeroFlag);
+  sendMessage(requestId, CMD_THERMOMETER_RESPONSE, id, intTempC, belowZeroFlag);
 }

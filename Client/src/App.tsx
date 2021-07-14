@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Dashboard } from 'pages/Dashboard/Dashboard';
+import { Scenarios } from 'pages/Scenarios/Scenarios';
+import { CreateScenario } from 'pages/CreateScenario/CreateScenario';
 import { Group } from 'pages/Group/Group';
 import { Thermometers } from 'pages/Thermometers/Thermometers';
 import { Thermometer } from 'pages/Thermometer/Thermometer';
@@ -26,6 +28,12 @@ export const App = () => {
   return (
     <Router>
       <Switch>
+        <Route exact path="/scenarios">
+          <Scenarios />
+        </Route>
+        <Route exact path="/scenarios/new">
+          <CreateScenario />
+        </Route>
         <Route exact path="/thermometers">
           <Thermometers />
         </Route>
