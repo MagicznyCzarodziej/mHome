@@ -1,0 +1,87 @@
+@import '~assets/styles/variables'
+
+.scenario
+  +noSelect
+  padding: 1rem
+
+  &__header
+    display: flex
+    align-items: stretch
+  &__status
+    font-size: 1rem
+    background-color: $cGray500
+    border-radius: 0.1rem
+    margin-left: 0.5rem
+    padding: 0 0.5rem
+    // display: grid
+    display: none
+
+    place-items: center
+    color: $cGray200
+    &--active
+      color: $cWhite
+      background-color: $cGreen500
+      box-shadow: 0 0 2px $cGreen500
+  &__labels
+    flex-grow: 1
+    padding: 0 1rem
+    display: flex
+    gap: 0.2rem
+    flex-direction: column
+    justify-content: center
+  &__name
+    font-size: 1.2rem
+    color: $cGray500
+  &__description
+    font-size: 1rem
+    color: $cGray600
+  &__controls
+    display: flex
+    align-items: center
+    gap: 1.5rem
+    margin-right: 0.5rem
+  &__entries
+    border-top: 1px solid $cGray800
+    margin-top: 1rem
+    padding: 1rem 1rem
+    font-size: 1.2rem
+  &__entry
+    &:not(:first-child)
+      margin-top: 0.5rem
+      padding-left: 1rem
+      border-left: 1px solid $cGray700
+
+.controls__icon
+  svg
+    transition: 0.5s
+
+  svg:active
+    transition: 0s
+    transform: scale(1.1)
+
+.icon__edit
+  color: $cGray300
+.icon__delete
+  color: $cRed500
+.icon__deleting
+  animation: spin 2s linear infinite
+
+.condition
+  color: $cGray500
+  margin-bottom: 1rem
+  &__type
+    border: 2px solid $cGray700
+    padding: 0 0.3rem
+    margin: 0 0.3rem
+.action
+  margin-bottom: 1rem
+  color: $cGray500
+  &__type
+    border: 2px solid $cGray700
+    padding: 0 0.3rem
+    margin: 0 0.3rem
+.margin
+  margin-bottom: 1rem
+@keyframes spin
+  100%
+    transform: rotate(360deg)

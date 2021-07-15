@@ -1,5 +1,6 @@
 import { database } from 'database/database';
 import Express from 'express';
+import { validateAndParseId } from 'app/middlewares/validateId';
 
 const router = Express.Router();
 
@@ -9,49 +10,67 @@ router.get('/', async (req, res) => {
 
     res.send(scenarios);
   } catch (error) {
-    return res.send({ error: 'Error' });
+    return res.status(500).send({ error: 'Error' });
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validateAndParseId, async (req, res) => {
   try {
-    const scenario = {
-      id: 1,
-      name: 'Scenariusz 1',
-      description: 'Opis 1',
-      entries: [
-        {
-          id: 1,
-          parentEntry: null,
-          conditions: [
-            {
-              type: 'TEMPERATURE_ABOVE',
-              id: 1,
-              value: 25,
-            },
-            {
-              type: 'REED',
-              id: 3,
-              value: 'CLOSED',
-            },
-          ],
-          actions: [
-            {
-              id: 1,
-              type: 'SET_LIGHT',
-            },
-            {
-              id: 4,
-              type: 'SET_LIGHT',
-            },
-          ],
-        },
-      ],
-    };
+    const { id } = res.locals;
 
-    res.send(scenario);
+    const scenario = await database.scenario.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!scenario) return res.status(404).send({ error: 'Scenario not found' });
+
+    res.send({
+      ...scenario,
+      entries: JSON.parse(scenario.entries),
+    });
   } catch (error) {
-    return res.send({ error: 'Error' });
+    return res.status(500).send({ error: 'Error' });
+  }
+});
+
+router.delete('/:id', validateAndParseId, async (req, res) => {
+  try {
+    const { id } = res.locals;
+
+    const scenario = await database.scenario.delete({
+      where: {
+        id,
+      },
+    });
+
+    if (!scenario) return res.status(404).send({ error: 'Scenario not found' });
+
+    res.sendStatus(204);
+  } catch (error) {
+    return res.status(500).send({ error: 'Error' });
+  }
+});
+
+router.patch('/:id', validateAndParseId, async (req, res) => {
+  try {
+    const { id } = res.locals;
+
+    const scenario = await database.scenario.update({
+      where: {
+        id,
+      },
+      data: {
+        ...req.body,
+      },
+    });
+
+    if (!scenario) return res.status(404).send({ error: 'Scenario not found' });
+
+    res.send({ ...scenario, entries: JSON.parse(scenario.entries) });
+  } catch (error) {
+    return res.status(500).send({ error: 'Error' });
   }
 });
 
@@ -72,7 +91,7 @@ router.post('/', async (req, res) => {
     });
     res.send(createdScenario);
   } catch (error) {
-    console.log(error);
+    res.status(500).send({ error: 'Error' });
   }
 });
 

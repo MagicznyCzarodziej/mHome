@@ -1,53 +1,70 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router';
 import { useImmer } from 'use-immer';
 
 import styles from './CreateScenario.module.sass';
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
-import { scenariosActions } from 'store/reducers/scenariosReducer';
+import {
+  scenariosActions,
+  selectCreateScenarioStatus,
+} from 'store/reducers/scenariosReducer';
+
+const createCondition = () => {
+  return {
+    id: Math.random() * 99999,
+    type: null,
+    elementId: null,
+    value: null,
+  };
+};
+
+const createAction = () => {
+  return {
+    id: Math.random() * 99999,
+    type: null,
+    payload: {
+      elementId: null,
+      value: null,
+    },
+  };
+};
 
 export const CreateScenario = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const status = useSelector(selectCreateScenarioStatus);
 
   const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const [entries, setEntries] = useImmer<any>([
     {
       id: 1,
       parentEntry: null,
-      conditions: [
-        {
-          id: 1,
-          type: 'REED',
-          elementId: 0,
-          value: 'CLOSED',
-        },
-        {
-          id: 2,
-          type: 'TIME_AFTER',
-          value: '21:00',
-        },
-      ],
-      actions: [
-        {
-          id: 1,
-          elementId: 1,
-          type: 'SET_LIGHT',
-          value: 'ON',
-        },
-      ],
+      conditions: [createCondition()],
+      actions: [createAction()],
     },
   ]);
 
   useEffect(() => {
+    if (status === 'SUCCESS') {
+      history.push('/scenarios');
+    }
+    return () => {
+      dispatch(scenariosActions.setCreateScenarioStatus('IDLE'));
+    };
+  }, [dispatch, status, history]);
+
+  const createScenario = () => {
     dispatch(
       scenariosActions.createScenario({
-        name: 'Drugi',
+        name: name.trim(),
         active: true,
-        description: 'Costam',
+        description: description.trim(),
         entries: entries,
       })
     );
-  }, [dispatch]);
+  };
 
   const showEntry = (entry: any, level: number = 1) => {
     return (
@@ -77,11 +94,7 @@ export const CreateScenario = () => {
           onClick={() => {
             setEntries((draft: any) => {
               const entryToUpdate = draft.find((e: any) => e.id === entry.id);
-              entryToUpdate.conditions.push({
-                id: Math.random() * 99999,
-                type: null,
-                value: null,
-              });
+              entryToUpdate.conditions.push(createCondition());
             });
           }}
         >
@@ -107,15 +120,9 @@ export const CreateScenario = () => {
         {entry.conditions.length > 0 && (
           <button
             onClick={() => {
-              const newAction = {
-                id: Math.floor(Math.random() * 99999),
-                type: null,
-                payload: null,
-              };
-
               setEntries((draft: any) => {
                 const entryToUpdate = draft.find((e: any) => e.id === entry.id);
-                entryToUpdate.actions.push(newAction);
+                entryToUpdate.actions.push(createAction());
               });
             }}
           >
@@ -141,20 +148,8 @@ export const CreateScenario = () => {
               const newEntry = {
                 id: Math.floor(Math.random() * 99999),
                 parentEntry: entry.id,
-                conditions: [
-                  {
-                    id: Math.floor(Math.random() * 99999),
-                    type: null,
-                    value: null,
-                  },
-                ],
-                actions: [
-                  {
-                    id: Math.floor(Math.random() * 99999),
-                    type: null,
-                    payload: null,
-                  },
-                ],
+                conditions: [createCondition()],
+                actions: [createAction()],
               };
 
               setEntries((draft: any) => {
@@ -187,8 +182,14 @@ export const CreateScenario = () => {
             </div>
           </div>
 
-          <div>{showEntry(rootEntry)}</div>
-          <div>Zapisz</div>
+          <div>{rootEntry !== undefined && showEntry(rootEntry)}</div>
+          <button
+            onClick={() => {
+              createScenario();
+            }}
+          >
+            Zapisz
+          </button>
         </div>
       </DefaultLayout>
     </>

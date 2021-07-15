@@ -6,6 +6,7 @@ export const useBreadCrumbs = (): string => {
 
   const mapping: { [key: string]: string } = {
     scenarios: 'Scenariusze',
+    'scenarios/:id': 'Scenariusz',
     'scenarios/new': 'Nowy scenariusz',
     thermometers: 'Termometry',
     settings: 'Ustawienia',

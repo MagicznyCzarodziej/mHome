@@ -14,7 +14,7 @@ export const Thermometers = () => {
     <DefaultLayout>
       <div className={styles.thermometers}>
         {allThermometers.map((thermometer) => (
-          <NavLink to={`/thermometer/${thermometer.id}`} key={thermometer.id}>
+          <NavLink to={`/thermometers/${thermometer.id}`} key={thermometer.id}>
             <ThermometerItem thermometer={thermometer} />
           </NavLink>
         ))}

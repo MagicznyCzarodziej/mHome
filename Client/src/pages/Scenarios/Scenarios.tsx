@@ -1,13 +1,16 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavLink } from 'react-router-dom';
-
-import { selectAllScenarios } from 'store/reducers/scenariosReducer';
-
-import styles from './Scenarios.module.sass';
-import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
+import { Link } from 'react-router-dom';
+import cx from 'classnames';
 
 import { scenariosActions } from 'store/reducers/scenariosReducer';
+import { selectAllScenarios } from 'store/reducers/scenariosReducer';
+
+import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
+import { ScenarioItem } from './ScenarioItem';
+import styles from './Scenarios.module.sass';
+import Icon from '@mdi/react';
+import { mdiPlus } from '@mdi/js';
 
 export const Scenarios = () => {
   const dispatch = useDispatch();
@@ -22,15 +25,25 @@ export const Scenarios = () => {
     <DefaultLayout>
       <div className={styles.scenarios}>
         <div>
-          {allScenarios.map((scenario) => (
-            <NavLink to={`/scenarios/${scenario.id}`} key={scenario.id}>
-              <div>{scenario.name}</div>
-            </NavLink>
-          ))}
+          <div className={styles.scenarios__inactive}>Aktywne</div>
+          {allScenarios
+            .filter((s) => s.active)
+            .map((scenario) => (
+              <ScenarioItem key={scenario.id} scenario={scenario} />
+            ))}
+          <div className={styles.scenarios__inactive}>Nieaktywne</div>
+          {allScenarios
+            .filter((s) => !s.active)
+            .map((scenario) => (
+              <ScenarioItem key={scenario.id} scenario={scenario} />
+            ))}
         </div>
-        <div>
-          <NavLink to="/scenarios/new">Dodaj scenariusz</NavLink>
-        </div>
+
+        <Link to="/scenarios/new">
+          <div className={styles['create-scenario']}>
+            <Icon size="1.7rem" path={mdiPlus} />
+          </div>
+        </Link>
       </div>
     </DefaultLayout>
   );

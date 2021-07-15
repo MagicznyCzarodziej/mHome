@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Dashboard } from 'pages/Dashboard/Dashboard';
 import { Scenarios } from 'pages/Scenarios/Scenarios';
+import { Scenario } from 'pages/Scenario/Scenario';
 import { CreateScenario } from 'pages/CreateScenario/CreateScenario';
 import { Group } from 'pages/Group/Group';
 import { Thermometers } from 'pages/Thermometers/Thermometers';
@@ -34,10 +35,13 @@ export const App = () => {
         <Route exact path="/scenarios/new">
           <CreateScenario />
         </Route>
+        <Route exact path="/scenarios/:id">
+          <Scenario />
+        </Route>
         <Route exact path="/thermometers">
           <Thermometers />
         </Route>
-        <Route exact path="/thermometer/:id">
+        <Route exact path="/thermometers/:id">
           <Thermometer />
         </Route>
         <Route exact path="/group/:groupId">

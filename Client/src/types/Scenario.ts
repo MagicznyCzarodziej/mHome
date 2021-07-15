@@ -7,6 +7,7 @@ export interface Scenario {
 }
 
 export type CreateScenario = Omit<Scenario, 'id'>;
+export type EditScenario = { id: number } & Partial<Scenario>;
 
 export interface ScenarioEntry {
   id: number;
@@ -25,4 +26,8 @@ export interface ScenarioEntryCondition {
 export interface ScenarioEntryAction {
   id: number;
   type: string;
+  payload: {
+    elementId?: number;
+    value?: number | string;
+  };
 }
