@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useImmer } from 'use-immer';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 import { useHistory } from 'react-router';
@@ -13,12 +14,17 @@ import {
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
 import styles from './Scenario.module.sass';
 import Icon from '@mdi/react';
-import { mdiDelete, mdiLoading, mdiPencil } from '@mdi/js';
+import { mdiDelete, mdiLoading, mdiPencil, mdiCheck } from '@mdi/js';
 import {
+  Scenario as IScenario,
   ScenarioEntry,
   ScenarioEntryAction,
   ScenarioEntryCondition,
+  ScenarioConditionType,
 } from 'types/Scenario';
+import { ScenarioConditionSelect } from 'utils/constants';
+import { ScenarioActionSelect } from './../../utils/constants';
+import { Select } from 'components/Select/Select';
 
 export const Scenario = () => {
   const dispatch = useDispatch();
@@ -28,6 +34,11 @@ export const Scenario = () => {
 
   const scenario = useSelector(selectScenario);
   const status = useSelector(selectScenarioStatus);
+
+  const [editing, setEditing] = useState(false);
+  const [updatedScenario, setUpdatedScenario] = useImmer<IScenario | null>(
+    null
+  );
 
   // Fetch scenario and reset view on leave
   useEffect(() => {
@@ -46,8 +57,58 @@ export const Scenario = () => {
       case 'DELETING_ERROR':
         alert('Błąd podczas usuwania!');
         break;
+
+      case 'EDITING_SUCCESS':
+        setEditing(false);
+        break;
+
+      case 'EDITING_ERROR':
+        alert('Błąd podczas zapisu!');
+        break;
     }
   }, [status, history]);
+
+  const saveScenario = () => {
+    if (updatedScenario !== null)
+      dispatch(scenariosActions.editScenario(updatedScenario));
+  };
+
+  const mapCondition = (condition: ScenarioEntryCondition) => {
+    const mapTypeToValue = (type: ScenarioConditionType | null) => {
+      if (type === null) return '';
+      if (type.includes('TEMPERATURE')) return 'TEMPERATURE';
+      else if (type.includes('TIME')) return 'TIME';
+      else if (type.includes('BLIND')) return 'BLIND';
+      else return type;
+    };
+
+    return (
+      <>
+        <Select
+          value={mapTypeToValue(condition.type)}
+          handleChange={(value: ScenarioConditionType) => {
+            setUpdatedScenario((draft) => {
+              draft?.entries.forEach((entry) => {
+                const cond = entry.conditions.find(
+                  (c) => c.id === condition.id
+                );
+                if (cond) cond.type = value;
+              });
+            });
+          }}
+          placeholder="Wybierz warunek"
+        >
+          {conditionOptions.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </Select>
+
+        {}
+      </>
+    );
+  };
 
   const renderEntries = (entries: ScenarioEntry[]) => {
     const rootEntry = entries.find((entry) => entry.parentEntry === null);
@@ -61,7 +122,12 @@ export const Scenario = () => {
       <div className={styles.scenario__entry} key={entry.id}>
         {/* {nestingLevel > 0 && <div>Dodatkowo</div>} */}
         {conditions.map((condition, index) => (
-          <Condition key={condition.id} condition={condition} index={index} />
+          <Condition
+            key={condition.id}
+            condition={condition}
+            index={index}
+            mapCondition={mapCondition}
+          />
         ))}
         {actions.map((action, index) => (
           <Action key={action.id} action={action} index={index} />
@@ -79,23 +145,6 @@ export const Scenario = () => {
       return (
         <div className={styles.scenario}>
           <div className={styles.scenario__header}>
-            <div
-              className={cx([
-                styles.scenario__status,
-                { [styles['scenario__status--active']]: scenario.active },
-              ])}
-              onClick={() => {
-                if (status === 'EDITING') return;
-                dispatch(
-                  scenariosActions.editScenario({
-                    id: scenario.id,
-                    active: !scenario.active,
-                  })
-                );
-              }}
-            >
-              {scenario.active ? 'Aktywny' : 'Nieaktywny'}
-            </div>
             <div className={styles.scenario__labels}>
               <div className={styles.scenario__name}>{scenario.name}</div>
               <div className={styles.scenario__description}>
@@ -103,8 +152,22 @@ export const Scenario = () => {
               </div>
             </div>
             <div className={styles.scenario__controls}>
-              <div className={cx(styles.controls__icon, styles.icon__edit)}>
-                <Icon path={mdiPencil} size="1.5rem" />
+              <div
+                className={cx(styles.controls__icon, styles.icon__edit)}
+                onClick={() => {
+                  if (!editing) {
+                    setUpdatedScenario(scenario);
+                    setEditing(true);
+                  } else {
+                    saveScenario();
+                  }
+                }}
+              >
+                {editing ? (
+                  <Icon path={mdiCheck} size="1.5rem" />
+                ) : (
+                  <Icon path={mdiPencil} size="1.5rem" />
+                )}
               </div>
               <div
                 className={cx(styles.controls__icon, styles.icon__delete)}
@@ -138,20 +201,48 @@ export const Scenario = () => {
   return <DefaultLayout>{renderScenario()}</DefaultLayout>;
 };
 
+const conditionOptions = [
+  { value: 'REED', label: 'Kontaktron' },
+  { value: 'TEMPERATURE', label: 'Temperatura' },
+  { value: 'CRON', label: 'CRON' },
+  { value: 'TIME', label: 'Czas' },
+  { value: 'LIGHT', label: 'Światło' },
+  { value: 'BLIND', label: 'Roleta' },
+];
+
 const Condition = (props: {
   condition: ScenarioEntryCondition;
   index: number;
+  mapCondition: Function;
 }) => {
-  const { condition, index } = props;
+  const { condition, index, mapCondition } = props;
 
   return (
     <div className={styles.condition}>
       <div className={styles.margin}>{index > 0 ? '' : 'Jeżeli '}</div>
-      <span className={styles.condition__type}>{condition.type}</span>
-      {condition.elementId !== undefined && (
-        <span className={styles.condition__type}>{condition.elementId}</span>
-      )}
-      <span className={styles.condition__type}>{condition.value}</span>
+
+      {mapCondition(condition)}
+
+      {condition.type &&
+        ScenarioConditionSelect[condition.type]?.fields.map((field, index) => {
+          return {
+            elementId: (
+              <span key={index} className={styles.condition__type}>
+                {condition.elementId}
+              </span>
+            ),
+            groupId: (
+              <span key={index} className={styles.condition__type}>
+                {condition.groupId}
+              </span>
+            ),
+            value: (
+              <span key={index} className={styles.condition__type}>
+                {condition.value}
+              </span>
+            ),
+          }[field];
+        })}
     </div>
   );
 };
@@ -162,11 +253,50 @@ const Action = (props: { action: ScenarioEntryAction; index: number }) => {
   return (
     <div key={action.id} className={styles.action}>
       <div className={styles.margin}>{index > 0 ? '' : 'Wykonaj '}</div>
-      <span className={styles.action__type}>{action.type}</span>
-      <span className={styles.action__type}>{action.payload?.elementId}</span>
-      {action.payload?.value !== undefined && (
-        <span className={styles.action__type}>{action.payload?.value}</span>
-      )}
+      <Select
+        placeholder="Wybierz akcję"
+        value={action.type || ''}
+        handleChange={(value: string) => {
+          // handleChangeType(value);
+        }}
+      >
+        {Object.entries(ScenarioActionSelect).map(([type, { label }]) => (
+          <option value={type}>{label}</option>
+        ))}
+      </Select>
+      {/* <select
+        className={styles.action__type}
+        value={action.type || ''}
+        onChange={(event) => {
+          const { value } = event.target;
+          // handleChangeType(value);
+        }}
+      >
+        <option disabled hidden selected>
+          Wybierz akcję
+        </option>
+
+      </select> */}
+      {action.type &&
+        ScenarioActionSelect[action.type].fields.map((field) => {
+          return {
+            elementId: (
+              <span className={styles.action__type}>
+                {action.payload?.elementId}
+              </span>
+            ),
+            groupId: (
+              <span className={styles.action__type}>
+                {action.payload?.groupId}
+              </span>
+            ),
+            value: (
+              <span className={styles.action__type}>
+                {action.payload?.value}
+              </span>
+            ),
+          }[field];
+        })}
     </div>
   );
 };

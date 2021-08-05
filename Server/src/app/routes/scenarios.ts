@@ -6,7 +6,15 @@ const router = Express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const scenarios = await database.scenario.findMany();
+    const scenarios = await database.scenario.findMany({
+      // Skip entries
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        active: true,
+      },
+    });
 
     res.send(scenarios);
   } catch (error) {
@@ -56,14 +64,16 @@ router.delete('/:id', validateAndParseId, async (req, res) => {
 router.patch('/:id', validateAndParseId, async (req, res) => {
   try {
     const { id } = res.locals;
-
+    const { entries } = req.body;
+    const data = {
+      ...req.body,
+      ...(entries && { entries: JSON.stringify(entries) }),
+    };
     const scenario = await database.scenario.update({
       where: {
         id,
       },
-      data: {
-        ...req.body,
-      },
+      data,
     });
 
     if (!scenario) return res.status(404).send({ error: 'Scenario not found' });

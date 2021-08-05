@@ -7,7 +7,7 @@ import { scenariosActions } from 'store/reducers/scenariosReducer';
 import styles from './Scenarios.module.sass';
 import { Scenario } from 'types/Scenario';
 import { Icon } from '@mdi/react';
-import { mdiPause, mdiPlayCircleOutline } from '@mdi/js';
+import { mdiPause, mdiPlay } from '@mdi/js';
 
 interface Props {
   scenario: Scenario;
@@ -36,10 +36,7 @@ export const ScenarioItem = (props: Props) => {
           );
         }}
       >
-        <Icon
-          path={scenario.active ? mdiPause : mdiPlayCircleOutline}
-          size={1.2}
-        />
+        <Icon path={scenario.active ? mdiPause : mdiPlay} size={1.2} />
       </div>
       <Link
         className={styles.scenario__labels}
