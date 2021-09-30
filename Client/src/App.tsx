@@ -9,21 +9,30 @@ import { CreateScenario } from 'pages/CreateScenario/CreateScenario';
 import { Group } from 'pages/Group/Group';
 import { Thermometers } from 'pages/Thermometers/Thermometers';
 import { Thermometer } from 'pages/Thermometer/Thermometer';
+import { Security } from 'pages/Security/Security';
 import { Settings } from 'pages/Settings/Settings';
 
 import { groupsActions } from 'store/reducers/groupsReducer';
 import { lightsActions } from 'store/reducers/lightsReducer';
 import { thermometersActions } from 'store/reducers/thermometersReducer';
 import { reedsActions } from './store/reducers/reedsReducer';
+import { blindsActions } from 'store/reducers/blindsReducer';
 
 export const App = () => {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!localStorage.getItem('MHOME_API_IP')) {
+      alert('Ustaw adres API (pamiętaj o http:// i porcie)');
+    }
+  }, []);
 
   useEffect(() => {
     dispatch(groupsActions.fetchAllGroups());
     dispatch(thermometersActions.fetchAllThermometers());
     dispatch(lightsActions.fetchAllLights());
     dispatch(reedsActions.fetchAllReeds());
+    dispatch(blindsActions.fetchAllBlinds());
   }, [dispatch]);
 
   return (
@@ -47,7 +56,9 @@ export const App = () => {
         <Route exact path="/group/:groupId">
           <Group />
         </Route>
-        <Route exact path="/security"></Route>
+        <Route exact path="/security">
+          <Security />
+        </Route>
         <Route exact path="/settings">
           <Settings />
         </Route>

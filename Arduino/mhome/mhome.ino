@@ -5,6 +5,19 @@
 #define RELAY_OFF HIGH
 
 /* ------------------------------------
+      MESSAGE AUX
+------------------------------------ */
+
+// Temperature
+#define AUX_TEMP_ABOVE_ZERO 0
+#define AUX_TEMP_BELOW_ZERO 1
+
+// Blind
+#define AUX_BLIND_STATUS_IDLE 0
+#define AUX_BLIND_STATUS_MOVING_UP 1
+#define AUX_BLIND_STATUS_MOVING_DOWN 2
+
+/* ------------------------------------
       COMMANDS
 ------------------------------------ */
 
@@ -19,9 +32,8 @@
 #define CMD_THERMOMETER_REQUEST 'T'
 #define CMD_THERMOMETER_RESPONSE 'T'
 
-#define CMD_BLINDS_SET 'B'
-#define CMD_BLINDS_REQUEST 'B'
-#define CMD_BLINDS_RESPONSE 'B'
+#define CMD_BLIND_SET 'B'
+#define CMD_BLIND_RESPONSE 'B'
 
 #define CMD_REED_REQUEST 'R'
 #define CMD_REED_RESPONSE 'R'
@@ -74,6 +86,7 @@ const byte SWITCHES_SIZE = 1;
 const byte LIGHTS_SIZE = 18;
 const byte THERMOMETERS_SIZE = 2;
 const byte REEDS_SIZE = 1;
+const byte BLINDS_SIZE = 2;
 
 const byte ONE_WIRE_BUS = 2; // OneWire pin
 #define TEMPERATURE_PRECISION 9
@@ -104,6 +117,13 @@ byte reedsPins[REEDS_SIZE] = {8}; // REED SWTICH
 byte reedsState[REEDS_SIZE] = {LOW};
 byte previousReedsState[REEDS_SIZE] = {LOW};
 unsigned long reedsTimes[REEDS_SIZE] = {0};
+
+// BLINDS
+byte blindsPosition[BLINDS_SIZE] = {0, 0};
+byte blindsStatus[BLINDS_SIZE] = {AUX_BLIND_STATUS_IDLE, AUX_BLIND_STATUS_IDLE};
+
+unsigned long int lastBlindTime = 0; //TEMP
+int requestedBlindPosition = 0;
 
 /* ------------------------------------
       SETUP
@@ -188,6 +208,13 @@ void loop() {
     previousReedsState[i] = state;
   }
 
+  // BLINDS
+  if (blindsStatus[0] != AUX_BLIND_STATUS_IDLE && millis() - lastBlindTime > 3000) {
+    blindsPosition[0] = requestedBlindPosition;
+    blindsStatus[0] = AUX_BLIND_STATUS_IDLE;
+    sendMessage(NO_REQUEST_ID, CMD_BLIND_RESPONSE, 0, blindsPosition[0], blindsStatus[0]);
+  }
+
   // SERIAL
   if (Serial.available() > 0) {
     char received = Serial.read();
@@ -247,8 +274,12 @@ void processMessage() {
     case CMD_THERMOMETER_REQUEST:
       requestThermometer(requestId, elementId);
       break;
+    case CMD_BLIND_SET:
+      setBlind(requestId, elementId, val);
+      break;
     default:
       sendMessage(requestId, CMD_ERROR, 0, 0, 0);
+      break;
   }
 }
 
@@ -305,6 +336,24 @@ void requestThermometer(String requestId, int id) {
   sensors.requestTemperatures();
   float tempC = sensors.getTempC(thermometers[id]);
   int intTempC = tempC * 10; // Multiply by 10 to preserve decimal value
-  int belowZeroFlag = tempC < 0 ? 1 : 0;
+  int belowZeroFlag = tempC < 0 ? AUX_TEMP_BELOW_ZERO : AUX_TEMP_ABOVE_ZERO;
   sendMessage(requestId, CMD_THERMOMETER_RESPONSE, id, intTempC, belowZeroFlag);
+}
+
+/* ---- BLINDS ---- */
+
+void setBlind(String requestId, int id, int value) {
+  if (value > 100) {
+    sendMessage(requestId, CMD_ERROR, id, value, 0);
+    return;
+  }
+  int currentPosition = blindsPosition[id];
+  blindsPosition[id] = value;
+  // TODO: Change status when moving up or down
+  lastBlindTime = millis();
+  requestedBlindPosition = value;
+  blindsStatus[id] = currentPosition < value
+                         ? AUX_BLIND_STATUS_MOVING_UP
+                         : AUX_BLIND_STATUS_MOVING_DOWN;
+  sendMessage(requestId, CMD_BLIND_RESPONSE, id, currentPosition, blindsStatus[id]);
 }

@@ -22,8 +22,7 @@ import {
   ScenarioEntryCondition,
   ScenarioConditionType,
 } from 'types/Scenario';
-import { ScenarioConditionSelect } from 'utils/constants';
-import { ScenarioActionSelect } from './../../utils/constants';
+import { ScenarioConditionSelect, ScenarioActionSelect } from 'utils/constants';
 import { Select } from 'components/Select/Select';
 
 export const Scenario = () => {
@@ -121,6 +120,8 @@ export const Scenario = () => {
     return (
       <div className={styles.scenario__entry} key={entry.id}>
         {/* {nestingLevel > 0 && <div>Dodatkowo</div>} */}
+        <div className={styles.margin}>Jeżeli</div>
+
         {conditions.map((condition, index) => (
           <Condition
             key={condition.id}
@@ -129,6 +130,8 @@ export const Scenario = () => {
             mapCondition={mapCondition}
           />
         ))}
+        <div className={styles.margin}>Wykonaj</div>
+
         {actions.map((action, index) => (
           <Action key={action.id} action={action} index={index} />
         ))}
@@ -164,7 +167,15 @@ export const Scenario = () => {
                 }}
               >
                 {editing ? (
-                  <Icon path={mdiCheck} size="1.5rem" />
+                  status === 'EDITING' ? (
+                    <Icon
+                      className={styles.icon__processing}
+                      path={mdiLoading}
+                      size="1.5rem"
+                    />
+                  ) : (
+                    <Icon path={mdiCheck} size="1.5rem" />
+                  )
                 ) : (
                   <Icon path={mdiPencil} size="1.5rem" />
                 )}
@@ -181,7 +192,7 @@ export const Scenario = () => {
               >
                 {status === 'DELETING' ? (
                   <Icon
-                    className={styles.icon__deleting}
+                    className={styles.icon__processing}
                     path={mdiLoading}
                     size="1.5rem"
                   />
@@ -219,27 +230,34 @@ const Condition = (props: {
 
   return (
     <div className={styles.condition}>
-      <div className={styles.margin}>{index > 0 ? '' : 'Jeżeli '}</div>
-
       {mapCondition(condition)}
 
       {condition.type &&
         ScenarioConditionSelect[condition.type]?.fields.map((field, index) => {
           return {
             elementId: (
-              <span key={index} className={styles.condition__type}>
-                {condition.elementId}
-              </span>
+              <div className={styles.field}>
+                <div className={styles.field__label}>ID</div>
+                <div key={index} className={styles.field__value}>
+                  {condition.elementId}
+                </div>
+              </div>
             ),
             groupId: (
-              <span key={index} className={styles.condition__type}>
-                {condition.groupId}
-              </span>
+              <div className={styles.field}>
+                <div className={styles.field__label}>Grupa</div>
+                <div key={index} className={styles.field__value}>
+                  {condition.groupId}
+                </div>
+              </div>
             ),
             value: (
-              <span key={index} className={styles.condition__type}>
-                {condition.value}
-              </span>
+              <div className={styles.field}>
+                <div className={styles.field__label}>Stan</div>
+                <div key={index} className={styles.field__value}>
+                  {condition.value}
+                </div>
+              </div>
             ),
           }[field];
         })}
@@ -252,7 +270,6 @@ const Action = (props: { action: ScenarioEntryAction; index: number }) => {
 
   return (
     <div key={action.id} className={styles.action}>
-      <div className={styles.margin}>{index > 0 ? '' : 'Wykonaj '}</div>
       <Select
         placeholder="Wybierz akcję"
         value={action.type || ''}
@@ -281,19 +298,28 @@ const Action = (props: { action: ScenarioEntryAction; index: number }) => {
         ScenarioActionSelect[action.type].fields.map((field) => {
           return {
             elementId: (
-              <span className={styles.action__type}>
-                {action.payload?.elementId}
-              </span>
+              <div className={styles.field}>
+                <div className={styles.field__label}>ID</div>
+                <div key={index} className={styles.field__value}>
+                  {action.payload?.elementId}
+                </div>
+              </div>
             ),
             groupId: (
-              <span className={styles.action__type}>
-                {action.payload?.groupId}
-              </span>
+              <div className={styles.field}>
+                <div className={styles.field__label}>ID</div>
+                <div key={index} className={styles.field__value}>
+                  {action.payload?.groupId}
+                </div>
+              </div>
             ),
             value: (
-              <span className={styles.action__type}>
-                {action.payload?.value}
-              </span>
+              <div className={styles.field}>
+                <div className={styles.field__label}>ID</div>
+                <div key={index} className={styles.field__value}>
+                  {action.payload?.value}
+                </div>
+              </div>
             ),
           }[field];
         })}

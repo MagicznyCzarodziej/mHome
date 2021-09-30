@@ -7,6 +7,11 @@ import { socket, createSocketListeners } from 'services/Socket';
 import { store } from 'store/configureStore';
 
 import './index.sass';
+import { getApiIp } from './services/Api';
+
+const API_IP = getApiIp();
+if (!API_IP)
+  localStorage.setItem('MHOME_API_IP', process.env.REACT_APP_API_IP || '');
 
 createSocketListeners(store.dispatch, socket);
 

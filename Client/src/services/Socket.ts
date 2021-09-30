@@ -1,17 +1,11 @@
 import { Dispatch } from 'redux';
 import { io, Socket } from 'socket.io-client';
-import { API_IP } from 'utils/constants';
 import { lightsActions } from 'store/reducers/lightsReducer';
 import { thermometersActions } from 'store/reducers/thermometersReducer';
 import { reedsActions } from 'store/reducers/reedsReducer';
-
-const socket = io(API_IP);
-
-socket.on('connect', () => {
-  console.log('Connected to socket');
-});
-
-export { socket };
+import { blindsActions } from 'store/reducers/blindsReducer';
+import { BlindStatus } from 'types/Blind';
+import { getApiIp } from './Api';
 
 export const SocketMessage = {
   toServer: {
@@ -20,17 +14,24 @@ export const SocketMessage = {
     LIGHTS_SET_INSIDE: 'lights/set/inside',
     LIGHTS_SET_ALL: 'lights/set/all',
     BLIND_SET: 'blinds/set',
-    BLIND_SET_GROUP: 'blinds/set/group',
-    BLIND_SET_ALL: 'blinds/set/all',
+    BLINDS_SET_GROUP: 'blinds/set/group',
+    BLINDS_SET_ALL: 'blinds/set/all',
   },
   toClient: {
     LIGHT_STATE: 'lights/state',
     THERMOMETER_NEW_TEMPERATURE: 'thermometers/newTemperature',
     REED_STATE: 'reeds/state',
-    BLIND_POSITION_CHANGE: 'blinds/position',
-    BLIND_STATE_CHANGE: 'blinds/state',
+    BLIND_STATE: 'blinds/state',
   },
 };
+
+const socket = io(getApiIp());
+
+socket.on('connect', () => {
+  console.log('Connected to socket');
+});
+
+export { socket };
 
 export const createSocketListeners = (dispatch: Dispatch, socket: Socket) => {
   // New temperature measured
@@ -55,6 +56,17 @@ export const createSocketListeners = (dispatch: Dispatch, socket: Socket) => {
   socket.on(SocketMessage.toClient.REED_STATE, (data) => {
     dispatch(
       reedsActions.reedStateResponse({ id: data.id, state: data.state })
+    );
+  });
+
+  // Blind state changed
+  socket.on(SocketMessage.toClient.BLIND_STATE, (data) => {
+    dispatch(
+      blindsActions.blindStateResponse({
+        id: data.id,
+        position: data.position,
+        status: data.status,
+      })
     );
   });
 };

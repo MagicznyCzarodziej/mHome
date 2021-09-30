@@ -16,12 +16,16 @@ export enum SerialMessageType {
   THERMOMETER_RESPONSE = 'T',
   /** Message from Arduino with new reed state */
   REED_RESPONSE = 'R',
+
+  BLIND_SET = 'B',
+  BLIND_RESPONSE = 'B',
 }
 
 /** 3 characters long string */
 export type SerialMessageId = string;
 
 export enum SerialMessageSource {
+  ARDUINO = 'A',
   SOCKETS = 'W',
   SCENARIO = 'S',
   SCRIPT = 'C',

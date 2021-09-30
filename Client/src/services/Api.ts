@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-import { API_IP } from 'utils/constants';
+export const getApiIp = () => localStorage.getItem('MHOME_API_IP') || '';
 
-export const Api = axios.create({
-  baseURL: API_IP,
-});
+export const Api = () =>
+  axios.create({
+    baseURL: getApiIp(),
+  });

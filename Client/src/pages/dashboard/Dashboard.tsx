@@ -137,7 +137,7 @@ export const Dashboard = () => {
               <Icon path={mdiBlinds} size="1.75rem" />
               <Icon path={mdiBlindsOpen} size="1.75rem" />
             </div>
-            <div className={styles.controls__label}>Na zewnątrz</div>
+            <div className={styles.controls__label}>Wszystkie</div>
           </div>
         </div>
       </div>

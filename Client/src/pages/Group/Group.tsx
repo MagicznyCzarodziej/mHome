@@ -6,11 +6,13 @@ import { selectGroupById } from 'store/reducers/groupsReducer';
 import { selectLightsByGroupId } from 'store/reducers/lightsReducer';
 import { selectThermometersByGroupId } from 'store/reducers/thermometersReducer';
 import { selectReedsByGroupId } from 'store/reducers/reedsReducer';
+import { selectBlindsByGroupId } from 'store/reducers/blindsReducer';
 import { getTemperatureRange } from 'utils/helpers';
 
 import { GroupLayout } from 'components/layouts/GroupLayout/GroupLayout';
 import { LightItem } from 'pages/Group/LightItem';
 import { ReedItem } from 'pages/Group/ReedItem';
+import { BlindItem } from 'pages/Group/BlindItem';
 import styles from './Group.module.sass';
 
 export const Group = () => {
@@ -20,6 +22,7 @@ export const Group = () => {
   const lights = useSelector(selectLightsByGroupId(groupId));
   const thermometers = useSelector(selectThermometersByGroupId(groupId));
   const reeds = useSelector(selectReedsByGroupId(groupId));
+  const blinds = useSelector(selectBlindsByGroupId(groupId));
 
   if (!group) return null;
 
@@ -61,6 +64,13 @@ export const Group = () => {
           {reeds.map((reed) => (
             <div key={reed.id}>
               <ReedItem key={reed.id} reed={reed} />
+            </div>
+          ))}
+
+          {/* Blinds */}
+          {blinds.map((blind) => (
+            <div key={blind.id}>
+              <BlindItem key={blind.id} blind={blind} />
             </div>
           ))}
         </div>

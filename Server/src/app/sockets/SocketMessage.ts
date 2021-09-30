@@ -22,9 +22,7 @@ export const SocketMessage = {
     THERMOMETER_NEW_TEMPERATURE: 'thermometers/newTemperature',
     /** Notify client that reed state has changed */
     REED_STATE: 'reeds/state',
-    /** Notify client that blind position has changed */
-    BLIND_POSITION_CHANGE: 'blinds/position',
-    /** Notify client that blind state has changed (IDLE/MOVING) */
-    BLIND_STATE_CHANGE: 'blinds/state',
+    /** Notify client that blind position or status has changed */
+    BLIND_STATE: 'blinds/state',
   },
 };

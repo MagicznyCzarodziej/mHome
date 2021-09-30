@@ -8,7 +8,8 @@ import { useContainer } from 'routing-controllers';
 import Container from 'typedi';
 
 import { StandardLogger, Logger } from 'app/utils/Logger';
-import { MainController } from './controllers/MainController';
+import { cleanSocketIpAddress } from 'app/utils/cleanSocketIpAddress';
+import { MainController } from 'app/controllers/MainController';
 import { SocketMessage } from 'app/sockets/SocketMessage';
 import { router } from 'app/routes';
 
@@ -43,9 +44,19 @@ export default class App {
         if (!Object.values(SocketMessage.toServer).includes(message))
           throw new Error('INVALID REQUEST - INVALID MESSAGE TYPE');
 
-        socketIoClient
-          .connect('http://localhost:' + port)
-          .emit(message.toString(), data);
+        const clientIp = cleanSocketIpAddress(req.ip) || '';
+
+        const client = socketIoClient
+          .io('http://localhost:' + port, {
+            query: {
+              ip: clientIp,
+            },
+          })
+          .on('connect', () => {
+            client.emit(message.toString(), data);
+            client.disconnect();
+          });
+
         res.send({
           success: true,
           message,

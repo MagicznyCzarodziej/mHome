@@ -23,6 +23,52 @@
     color: $cRed500
   .reed--closed
     color: $cGray500
+.blind__status
+  margin-left: auto
+  margin-right: 0.5rem
+  svg
+    color: $cGreen500
+    vertical-align: middle
+    animation: fade 1s infinite alternate-reverse
+.blind__control
+  display: flex
+  align-items: center
+.blind__position
+  margin: 0.3rem
+  padding: 0.1rem 0.3rem
+  color: $cGray500
+  border: 1px solid transparent
+  transition: 0.2s
+  &:focus-within
+    border: 1px solid $cGray700
+    outline: none
+    color: cGray300
+  input
+    width: 2rem
+    padding: 0
+    text-align: center
+    background-color: transparent
+    border: none
+    font-size: 1.2rem
+    color: $cGray500
+    &:focus
+      outline: none
+
+.blind__button
+  color: $cGray500
+
+  &--disabled
+    color: $cGray700
+
+  svg
+    vertical-align: middle
+    transition: 0.5s
+
+  svg:active
+    color: $cGreen500
+    transition: 0s
+    transform: scale(1.2)
+
 .group-temperatures
   display: flex
   justify-content: space-evenly
@@ -52,3 +98,9 @@
   &--high
     color: $cRed300
     text-shadow: 0 0 2px $cRed300
+
+@keyframes fade
+  0%
+    color: $cGray500
+  100%
+    opacity: $cGreen500

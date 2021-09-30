@@ -22,6 +22,18 @@ export const getNextSerialMessageId = (() => {
 })();
 
 /**
+ * Returns key of SerialMessageSource or `'UNKNOWN'`
+ * based on first letter of serial message request id
+ */
+export const mapRequestIdToSource = (requestId: SerialMessageId) => {
+  const requestSourceLetter = requestId[0];
+  const [source] = Object.entries(SerialMessageSource).find(
+    ([key, value]) => value === requestSourceLetter,
+  ) || ['UNKNOWN'];
+  return source;
+};
+
+/**
  * Temperature sent from Arduino is multiplied by 10 to preserve decimal part of reading.
  * If temperature is below zero degrees, auxilary part is equal 1.
  *

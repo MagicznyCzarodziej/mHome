@@ -7,6 +7,7 @@ import {
   Scenario,
   ScenarioActionType,
   ScenarioConditionType,
+  ScenarioEntry,
   ScenarioEntryAction,
   ScenarioEntryCondition,
 } from 'app/interfaces/Scenario';
@@ -17,9 +18,10 @@ import {
 } from 'app/SerialCommunicator/SerialMessage';
 import { database } from 'database/database';
 import { StandardLogger } from 'app/utils/Logger';
-import { ScenarioEntry } from 'app/interfaces/Scenario';
 import { EventBus, SystemEvent } from 'app/EventBus';
 import { SerialCommunicator } from 'app/SerialCommunicator/SerialCommunicator';
+import { SwitchState } from 'app/utils/SwitchState';
+import { OnOff } from 'app/interfaces/OnOff';
 
 const EVERY_MINUTE = '* * * * *';
 
@@ -254,11 +256,22 @@ export class ScenarioController {
   async executeAction(action: ScenarioEntryAction) {
     switch (action.type) {
       case ScenarioActionType.SET_LIGHT: {
+        const state = SwitchState.parse(action.payload!.value as OnOff).toInt();
         const message = new SerialMessage(
           SerialMessageSource.SCENARIO,
           SerialMessageType.LIGHT_SET,
-          action.id,
-          1,
+          action.payload?.elementId,
+          state,
+        );
+        this.serialCommunicator.send(message);
+        break;
+      }
+      case ScenarioActionType.SET_BLIND: {
+        const message = new SerialMessage(
+          SerialMessageSource.SCENARIO,
+          SerialMessageType.BLIND_SET,
+          action.payload!.elementId,
+          action.payload!.value as number,
         );
         this.serialCommunicator.send(message);
         break;

@@ -1,8 +1,5 @@
 import { ScenarioActionType, ScenarioConditionType } from 'types/Scenario';
 
-export const API_IP =
-  process.env.REACT_APP_API_IP || 'http://192.168.1.16:3000';
-
 type ScenarioFields = 'elementId' | 'groupId' | 'value';
 
 export const ScenarioConditionSelect: {

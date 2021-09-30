@@ -31,6 +31,8 @@
     padding: 1rem 1rem
     font-size: 1.2rem
   &__entry
+    color: $cGray500
+
     &:not(:first-child)
       margin-top: 0.5rem
       padding-left: 1rem
@@ -46,27 +48,38 @@
 
 .icon__edit
   color: $cGray300
+.icon__processing
+  animation: spin 2s linear infinite
 .icon__delete
   color: $cRed500
-.icon__deleting
-  animation: spin 2s linear infinite
 
 .condition
-  color: $cGray500
   margin-bottom: 1rem
-  &__type
-    border: 2px solid $cGray700
-    padding: 0 0.3rem
-    margin: 0 0.3rem
+  display: flex
+  gap: 0.5rem
+
 .action
   margin-bottom: 1rem
-  color: $cGray500
-  &__type
-    border: 2px solid $cGray700
-    padding: 0 0.3rem
-    margin: 0 0.3rem
+  display: flex
+  gap: 0.5rem
+
+.field
+  display: flex
+  align-items: center
+  border: 2px solid $cGray700
+  background-color: $cGray800
+  &__label
+    font-size: 1rem
+    padding: 0.3rem 0.5rem
+  &__value
+    color: $cWhite
+    border-left: 2px solid $cGray700
+    padding: 0.3rem 0.5rem
+    background-color: $cGray900
+
 .margin
   margin-bottom: 1rem
+
 @keyframes spin
   100%
     transform: rotate(360deg)

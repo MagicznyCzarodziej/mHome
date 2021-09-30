@@ -7,8 +7,8 @@ import * as mdiIcons from '@mdi/js';
  * @param temperature Temperature in degrees Celsius
  */
 export const getTemperatureRange = (temperature: number): TemperatureRange => {
-  const LOW = 20.5;
-  const HIGH = 24;
+  const LOW = localStorage.getItem('MHOME_TEMP_THRESHOLD_LOW') || 20.5;
+  const HIGH = localStorage.getItem('MHOME_TEMP_THRESHOLD_HIGH') || 24;
 
   if (temperature < LOW) return 'LOW';
   else if (temperature > HIGH) return 'HIGH';

@@ -23,6 +23,11 @@ export interface ScenarioEntryCondition {
 export interface ScenarioEntryAction {
   id: number;
   type: ScenarioActionType;
+  payload: {
+    elementId?: number;
+    groupId?: string | null;
+    value?: number | string;
+  } | null;
 }
 
 export enum ScenarioConditionType {
@@ -37,4 +42,5 @@ export enum ScenarioConditionType {
 
 export enum ScenarioActionType {
   SET_LIGHT = 'SET_LIGHT',
+  SET_BLIND = 'SET_BLIND',
 }
