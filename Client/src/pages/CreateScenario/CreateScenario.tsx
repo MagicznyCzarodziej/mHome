@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import { useImmer } from 'use-immer';
+import { nanoid } from 'nanoid';
 
 import styles from './CreateScenario.module.sass';
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
@@ -17,7 +18,7 @@ import {
 
 const createCondition = () => {
   return {
-    id: Math.random() * 99999,
+    id: nanoid(),
     type: null,
     elementId: null,
     value: null,
@@ -26,7 +27,7 @@ const createCondition = () => {
 
 const createAction = () => {
   return {
-    id: Math.random() * 99999,
+    id: nanoid(),
     type: null,
     payload: null,
   };
@@ -41,7 +42,7 @@ export const CreateScenario = () => {
   const [description, setDescription] = useState<string>('');
   const [entries, setEntries] = useImmer<ScenarioEntry[]>([
     {
-      id: 1,
+      id: nanoid(),
       parentEntry: null,
       conditions: [createCondition()],
       actions: [createAction()],
@@ -148,7 +149,7 @@ export const CreateScenario = () => {
   //         <button
   //           onClick={() => {
   //             const newEntry = {
-  //               id: Math.floor(Math.random() * 99999),
+  //               id: Math.floor( nanoid()),
   //               parentEntry: entry.id,
   //               conditions: [createCondition()],
   //               actions: [createAction()],

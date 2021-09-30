@@ -5,19 +5,15 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 
-import { Scenario, CreateScenario, EditScenario } from 'types/Scenario';
+import {
+  Scenario,
+  CreateScenario,
+  EditScenario,
+  CreateScenarioStatus,
+  ScenarioStatus,
+} from 'types/Scenario';
 import { RootState } from 'store/configureStore';
 import { ScenarioService } from 'services/ScenarioService';
-
-type CreateScenarioStatus = 'IDLE' | 'IN_PROGRESS' | 'SUCCESS' | 'ERROR';
-type ScenarioStatus =
-  | 'IDLE'
-  | 'DELETING'
-  | 'DELETING_SUCCESS'
-  | 'DELETING_ERROR'
-  | 'EDITING'
-  | 'EDITING_SUCCESS'
-  | 'EDITING_ERROR';
 
 interface ScenariosState {
   scenarios: Scenario[];

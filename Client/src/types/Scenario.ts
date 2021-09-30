@@ -10,8 +10,8 @@ export type CreateScenario = Omit<Scenario, 'id'>;
 export type EditScenario = { id: number } & Partial<Scenario>;
 
 export interface ScenarioEntry {
-  id: number;
-  parentEntry: number | null;
+  id: string;
+  parentEntry: string | null;
   conditions: ScenarioEntryCondition[];
   actions: ScenarioEntryAction[];
 }
@@ -29,7 +29,7 @@ export type ScenarioConditionType =
   | 'BLIND_BELOW';
 
 export interface ScenarioEntryCondition {
-  id: number;
+  id: string;
   type: ScenarioConditionType | null;
   elementId?: number | null;
   groupId?: string | null;
@@ -45,7 +45,7 @@ export type ScenarioActionType =
   | 'SET_ALL_BLINDS';
 
 export interface ScenarioEntryAction {
-  id: number;
+  id: string;
   type: ScenarioActionType | null;
   payload: {
     elementId?: number;
@@ -53,3 +53,13 @@ export interface ScenarioEntryAction {
     value?: number | string;
   } | null;
 }
+
+export type CreateScenarioStatus = 'IDLE' | 'IN_PROGRESS' | 'SUCCESS' | 'ERROR';
+export type ScenarioStatus =
+  | 'IDLE'
+  | 'DELETING'
+  | 'DELETING_SUCCESS'
+  | 'DELETING_ERROR'
+  | 'EDITING'
+  | 'EDITING_SUCCESS'
+  | 'EDITING_ERROR';

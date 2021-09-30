@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useImmer } from 'use-immer';
 import { useSelector, useDispatch } from 'react-redux';
-import { useParams } from 'react-router';
-import { useHistory } from 'react-router';
-import cx from 'classnames';
+import { useParams, useHistory } from 'react-router';
 
 import { scenariosActions } from 'store/reducers/scenariosReducer';
 import {
@@ -12,32 +10,22 @@ import {
 } from 'store/reducers/scenariosReducer';
 
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
-import styles from './Scenario.module.sass';
-import Icon from '@mdi/react';
-import { mdiDelete, mdiLoading, mdiPencil, mdiCheck } from '@mdi/js';
-import {
-  Scenario as IScenario,
-  ScenarioEntry,
-  ScenarioEntryAction,
-  ScenarioEntryCondition,
-  ScenarioConditionType,
-} from 'types/Scenario';
-import { ScenarioConditionSelect, ScenarioActionSelect } from 'utils/constants';
-import { Select } from 'components/Select/Select';
+import { Scenario as IScenario } from 'types/Scenario';
+import { ScenarioProvider } from './ScenarioContext';
+import { ScenarioContent } from './ScenarioContent';
 
 export const Scenario = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-
   const { id: scenarioId } = useParams<{ id: string }>();
 
   const scenario = useSelector(selectScenario);
-  const status = useSelector(selectScenarioStatus);
-
-  const [editing, setEditing] = useState(false);
   const [updatedScenario, setUpdatedScenario] = useImmer<IScenario | null>(
     null
   );
+
+  const status = useSelector(selectScenarioStatus);
+  const [editing, setEditing] = useState(false);
 
   // Fetch scenario and reset view on leave
   useEffect(() => {
@@ -46,6 +34,11 @@ export const Scenario = () => {
       dispatch(scenariosActions.clearScenario());
     };
   }, [dispatch, scenarioId]);
+
+  useEffect(() => {
+    // Clone scenario to updatedScenario
+    setUpdatedScenario(scenario);
+  }, [scenario, setUpdatedScenario]);
 
   useEffect(() => {
     switch (status) {
@@ -68,261 +61,33 @@ export const Scenario = () => {
   }, [status, history]);
 
   const saveScenario = () => {
-    if (updatedScenario !== null)
+    if (updatedScenario) {
       dispatch(scenariosActions.editScenario(updatedScenario));
+    }
   };
 
-  const mapCondition = (condition: ScenarioEntryCondition) => {
-    const mapTypeToValue = (type: ScenarioConditionType | null) => {
-      if (type === null) return '';
-      if (type.includes('TEMPERATURE')) return 'TEMPERATURE';
-      else if (type.includes('TIME')) return 'TIME';
-      else if (type.includes('BLIND')) return 'BLIND';
-      else return type;
-    };
-
-    return (
-      <>
-        <Select
-          value={mapTypeToValue(condition.type)}
-          handleChange={(value: ScenarioConditionType) => {
-            setUpdatedScenario((draft) => {
-              draft?.entries.forEach((entry) => {
-                const cond = entry.conditions.find(
-                  (c) => c.id === condition.id
-                );
-                if (cond) cond.type = value;
-              });
-            });
-          }}
-          placeholder="Wybierz warunek"
-        >
-          {conditionOptions.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Select>
-
-        {}
-      </>
-    );
+  const deleteScenario = () => {
+    if (scenario) {
+      dispatch(scenariosActions.deleteScenario(scenario.id));
+    }
   };
-
-  const renderEntries = (entries: ScenarioEntry[]) => {
-    const rootEntry = entries.find((entry) => entry.parentEntry === null);
-    return rootEntry ? renderEntry(rootEntry) : null;
-  };
-
-  const renderEntry = (entry: ScenarioEntry, nestingLevel: number = 0) => {
-    const { conditions, actions } = entry;
-
-    return (
-      <div className={styles.scenario__entry} key={entry.id}>
-        {/* {nestingLevel > 0 && <div>Dodatkowo</div>} */}
-        <div className={styles.margin}>Jeżeli</div>
-
-        {conditions.map((condition, index) => (
-          <Condition
-            key={condition.id}
-            condition={condition}
-            index={index}
-            mapCondition={mapCondition}
-          />
-        ))}
-        <div className={styles.margin}>Wykonaj</div>
-
-        {actions.map((action, index) => (
-          <Action key={action.id} action={action} index={index} />
-        ))}
-        {scenario?.entries
-          .filter((e) => e.parentEntry === entry.id)
-          .map((e) => renderEntry(e, nestingLevel + 1))}
-      </div>
-    );
-  };
-
-  const renderScenario = () => {
-    if (!scenario) return null;
-    else
-      return (
-        <div className={styles.scenario}>
-          <div className={styles.scenario__header}>
-            <div className={styles.scenario__labels}>
-              <div className={styles.scenario__name}>{scenario.name}</div>
-              <div className={styles.scenario__description}>
-                {scenario.description}
-              </div>
-            </div>
-            <div className={styles.scenario__controls}>
-              <div
-                className={cx(styles.controls__icon, styles.icon__edit)}
-                onClick={() => {
-                  if (!editing) {
-                    setUpdatedScenario(scenario);
-                    setEditing(true);
-                  } else {
-                    saveScenario();
-                  }
-                }}
-              >
-                {editing ? (
-                  status === 'EDITING' ? (
-                    <Icon
-                      className={styles.icon__processing}
-                      path={mdiLoading}
-                      size="1.5rem"
-                    />
-                  ) : (
-                    <Icon path={mdiCheck} size="1.5rem" />
-                  )
-                ) : (
-                  <Icon path={mdiPencil} size="1.5rem" />
-                )}
-              </div>
-              <div
-                className={cx(styles.controls__icon, styles.icon__delete)}
-                onClick={() => {
-                  if (
-                    window.confirm('Na pewno chcesz usunąć ten scenariusz?')
-                  ) {
-                    dispatch(scenariosActions.deleteScenario(scenario.id));
-                  }
-                }}
-              >
-                {status === 'DELETING' ? (
-                  <Icon
-                    className={styles.icon__processing}
-                    path={mdiLoading}
-                    size="1.5rem"
-                  />
-                ) : (
-                  <Icon path={mdiDelete} size="1.5rem" />
-                )}
-              </div>
-            </div>
-          </div>
-          <div className={styles.scenario__entries}>
-            {renderEntries(scenario.entries)}
-          </div>
-        </div>
-      );
-  };
-
-  return <DefaultLayout>{renderScenario()}</DefaultLayout>;
-};
-
-const conditionOptions = [
-  { value: 'REED', label: 'Kontaktron' },
-  { value: 'TEMPERATURE', label: 'Temperatura' },
-  { value: 'CRON', label: 'CRON' },
-  { value: 'TIME', label: 'Czas' },
-  { value: 'LIGHT', label: 'Światło' },
-  { value: 'BLIND', label: 'Roleta' },
-];
-
-const Condition = (props: {
-  condition: ScenarioEntryCondition;
-  index: number;
-  mapCondition: Function;
-}) => {
-  const { condition, index, mapCondition } = props;
 
   return (
-    <div className={styles.condition}>
-      {mapCondition(condition)}
-
-      {condition.type &&
-        ScenarioConditionSelect[condition.type]?.fields.map((field, index) => {
-          return {
-            elementId: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>ID</div>
-                <div key={index} className={styles.field__value}>
-                  {condition.elementId}
-                </div>
-              </div>
-            ),
-            groupId: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>Grupa</div>
-                <div key={index} className={styles.field__value}>
-                  {condition.groupId}
-                </div>
-              </div>
-            ),
-            value: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>Stan</div>
-                <div key={index} className={styles.field__value}>
-                  {condition.value}
-                </div>
-              </div>
-            ),
-          }[field];
-        })}
-    </div>
-  );
-};
-
-const Action = (props: { action: ScenarioEntryAction; index: number }) => {
-  const { action, index } = props;
-
-  return (
-    <div key={action.id} className={styles.action}>
-      <Select
-        placeholder="Wybierz akcję"
-        value={action.type || ''}
-        handleChange={(value: string) => {
-          // handleChangeType(value);
+    <DefaultLayout>
+      <ScenarioProvider
+        value={{
+          scenario,
+          updatedScenario,
+          setUpdatedScenario,
+          editing,
+          setEditing,
+          status,
+          saveScenario,
+          deleteScenario,
         }}
       >
-        {Object.entries(ScenarioActionSelect).map(([type, { label }]) => (
-          <option value={type}>{label}</option>
-        ))}
-      </Select>
-      {/* <select
-        className={styles.action__type}
-        value={action.type || ''}
-        onChange={(event) => {
-          const { value } = event.target;
-          // handleChangeType(value);
-        }}
-      >
-        <option disabled hidden selected>
-          Wybierz akcję
-        </option>
-
-      </select> */}
-      {action.type &&
-        ScenarioActionSelect[action.type].fields.map((field) => {
-          return {
-            elementId: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>ID</div>
-                <div key={index} className={styles.field__value}>
-                  {action.payload?.elementId}
-                </div>
-              </div>
-            ),
-            groupId: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>ID</div>
-                <div key={index} className={styles.field__value}>
-                  {action.payload?.groupId}
-                </div>
-              </div>
-            ),
-            value: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>ID</div>
-                <div key={index} className={styles.field__value}>
-                  {action.payload?.value}
-                </div>
-              </div>
-            ),
-          }[field];
-        })}
-    </div>
+        <ScenarioContent />
+      </ScenarioProvider>
+    </DefaultLayout>
   );
 };
