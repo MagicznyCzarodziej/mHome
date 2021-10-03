@@ -18,10 +18,10 @@ export const SocketMessage = {
     BLINDS_SET_ALL: 'blinds/set/all',
   },
   toClient: {
-    LIGHT_STATE: 'lights/state',
+    LIGHT_STATE: 'lights/update',
     THERMOMETER_NEW_TEMPERATURE: 'thermometers/newTemperature',
-    REED_STATE: 'reeds/state',
-    BLIND_STATE: 'blinds/state',
+    REED_STATE: 'reeds/update',
+    BLIND_STATE: 'blinds/update',
   },
 };
 
@@ -36,7 +36,8 @@ export { socket };
 export const createSocketListeners = (dispatch: Dispatch, socket: Socket) => {
   // New temperature measured
   socket.on(SocketMessage.toClient.THERMOMETER_NEW_TEMPERATURE, (data) => {
-    const { thermometerId, ...temperature } = data;
+    const { thermometerId, temperature } = data;
+
     dispatch(
       thermometersActions.thermometerTemperatureResponse({
         thermometerId,

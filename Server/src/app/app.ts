@@ -1,84 +1,75 @@
-import Express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import socketIoClient from 'socket.io-client';
 import { Server } from 'http';
-import 'reflect-metadata';
-import { useContainer } from 'routing-controllers';
-import Container from 'typedi';
+import { Api } from './api/ApiServer';
+import { SerialCommunicator } from './SerialCommunicator/SerialCommunicator';
+import { SocketThing } from './sockets/Socket';
+import { Persistor } from './Persistor';
+import { Container, Service } from 'typedi';
+import { SocketClient } from 'app/sockets/SocketClient';
+import { ConsoleLogger, Logger } from './utils/Logger';
+import { Connector } from './CommunicatorToBusConnector';
+import { startServer } from './api/HttpServer';
+import { ScenariosManager } from './scenarios/ScenariosManager';
+import { Scripts } from './scripts';
 
-import { StandardLogger, Logger } from 'app/utils/Logger';
-import { cleanSocketIpAddress } from 'app/utils/cleanSocketIpAddress';
-import { MainController } from 'app/controllers/MainController';
-import { SocketMessage } from 'app/sockets/SocketMessage';
-import { router } from 'app/routes';
+const PORT = 3000;
 
-useContainer(Container);
+@Service()
+export class MHome {
+  @Logger('mHome')
+  private readonly logger: Logger;
 
-export default class App {
-  logger: Logger;
-  api: Express.Application;
+  async init() {
+    this.logger.info(
+      `Starting mHome | ${new Date()
+        .toLocaleString()
+        .replace('T', ' ')} local time`,
+    );
 
-  constructor(port: number) {
-    this.logger = new StandardLogger('Express');
-    this.api = Express().use(cors()).use(bodyParser.json());
-    const server = new Server(this.api);
+    // API Express Server
+    const api = new Api();
+    const expressApp = api.init();
 
-    new MainController(new StandardLogger('MainController'), server);
+    // HTTP Server
+    let httpServer: Server;
+    try {
+      httpServer = await startServer(PORT, expressApp);
+    } catch (error) {
+      this.logger.error('Cannot start server:');
+      this.logger.error(error);
+      return;
+    }
 
-    // Health check endpoint
-    this.api.get('/', (req, res) => {
-      res.send({
-        status: 'running',
-      });
-    });
+    // Socket.io server
+    const socketServer = Container.get(SocketThing);
+    socketServer.init(httpServer);
 
-    this.api.use(router);
+    this.logger.info(`Server running at port ${PORT}`);
 
-    // Handle messages without client
-    this.api.get('/msg', (req, res) => {
-      try {
-        const { message, ...data } = req.query;
-        if (typeof message !== 'string')
-          throw new Error('INVALID REQUEST - MISSING MESSAGE PARAM');
-        if (!Object.values(SocketMessage.toServer).includes(message))
-          throw new Error('INVALID REQUEST - INVALID MESSAGE TYPE');
+    // Socket.io client
+    Container.set(SocketClient, new SocketClient('http://localhost:3000'));
 
-        const clientIp = cleanSocketIpAddress(req.ip) || '';
+    // Serial Comunicator
+    await setupCommunicator();
 
-        const client = socketIoClient
-          .io('http://localhost:' + port, {
-            query: {
-              ip: clientIp,
-            },
-          })
-          .on('connect', () => {
-            client.emit(message.toString(), data);
-            client.disconnect();
-          });
+    // Connector
+    const connector = new Connector();
 
-        res.send({
-          success: true,
-          message,
-          data,
-        });
-      } catch (error) {
-        // TODO: Create file logger and logging levels and outputs so this is not logged to main log
-        this.logger.info(
-          `Invalid message from /msg (received: ${req.originalUrl}) ${error}`,
-        );
+    // Persistor
+    const persistor = Container.get(Persistor);
 
-        res.status(400).send({
-          error: {
-            message: error.message,
-          },
-        });
-      }
-    });
+    // Scripts
+    const scripts = Container.get(Scripts);
+    scripts.registerScripts();
 
-    // Start server
-    server.listen(port, () => {
-      this.logger.info(`Express server running at port ${port}`);
-    });
+    // Scenarios
+    const scenariosManager = Container.get(ScenariosManager);
   }
 }
+
+const setupCommunicator = async () => {
+  const logger = new ConsoleLogger('SerialCommunicator', 'ALL');
+  const serialPath = process.env.SERIAL_PATH || 'COM3';
+  const communicator = new SerialCommunicator(logger, serialPath, 57600);
+  await communicator.init();
+  Container.set(SerialCommunicator, communicator);
+};

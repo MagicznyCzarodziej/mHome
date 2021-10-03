@@ -1,11 +1,13 @@
-import { database } from 'database/database';
 import Express from 'express';
+import { ReedsRepository } from 'app/repositories/ReedsRepository';
+import { Container } from 'typedi';
 
 const router = Express.Router();
+const reedsRepository = Container.get(ReedsRepository);
 
 router.get('/', async (req, res) => {
   try {
-    const reeds = await database.reed.findMany();
+    const reeds = await reedsRepository.getAllReeds();
     res.send(reeds);
   } catch (error) {
     return res.send({ error: 'Error' });
@@ -16,12 +18,8 @@ router.get('/:id', async (req, res) => {
   const id = Number.parseInt(req.params.id);
 
   try {
-    const reeds = await database.reed.findUnique({
-      where: {
-        id,
-      },
-    });
-    res.send(reeds);
+    const reed = await reedsRepository.getReed(id);
+    res.send(reed);
   } catch (error) {
     return res.send({ error: 'Invalid ID' });
   }
@@ -31,16 +29,7 @@ router.get('/:id/history', async (req, res) => {
   const id = Number.parseInt(req.params.id);
 
   try {
-    const history = await database.reedHistory.findMany({
-      where: {
-        reedId: id,
-      },
-      select: {
-        id: true,
-        state: true,
-        timestamp: true,
-      },
-    });
+    const history = await reedsRepository.getReedHistory(id);
     res.send(history);
   } catch (error) {
     return res.send({ error: 'Invalid ID' });

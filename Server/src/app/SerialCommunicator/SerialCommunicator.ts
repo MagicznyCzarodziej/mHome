@@ -1,3 +1,4 @@
+import { Service } from 'typedi';
 import SerialPort from 'serialport';
 // eslint-disable-next-line
 const ReadLine = require('@serialport/parser-readline');
@@ -10,6 +11,7 @@ import {
 } from 'app/SerialCommunicator/SerialMessage';
 import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObserver';
 
+@Service()
 export class SerialCommunicator {
   port: SerialPort;
   parser: SerialPort.parsers.Readline;
@@ -39,7 +41,7 @@ export class SerialCommunicator {
 
       this.port.on('open', () => {
         // Serial port is open, but may not be ready to receive commands yet
-        this.logger.info('SerialPort open');
+        this.logger.info('SerialPort open, waiting for READY');
       });
 
       // Received data from serial port

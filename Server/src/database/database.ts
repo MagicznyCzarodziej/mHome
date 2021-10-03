@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import { EventBus } from 'app/EventBus';
+import { EventBus } from 'app/EventBus/EventBus';
+import { Events, EventType } from 'app/EventBus/Events';
 
 const database = new PrismaClient();
 
@@ -24,9 +25,8 @@ database.$use(async (params, next) => {
     'upsert',
   ];
   if (params.model === 'Scenario' && triggerActions.includes(params.action)) {
-    EventBus.pushEvent({
-      type: 'SCENARIO',
-      payload: null,
+    EventBus.publish(EventType.SCENARIO_UPDATE, {
+      _info: 'This event is emmited from database trigger',
     });
   }
 

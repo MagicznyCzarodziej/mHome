@@ -9,6 +9,7 @@
     "schema": "./src/database/schema.prisma"
   },
   "scripts": {
+    "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "start": "node build",
     "build": "tsc && tsc-alias",
     "watch": "concurrently -k -p \"[W:{name}]\" -n \"TSC,TSA,NDM\" -c \"yellow.bold,blue.bold,green.bold\" \"tsc -w --preserveWatchOutput\" \"tsc-alias -w\" \"nodemon --enable-source-maps build\"",
@@ -31,6 +32,8 @@
     "socket.io-client": "4.0.0",
     "sqlite3": "^5.0.0",
     "sunrise-sunset-js": "^2.2.1",
+    "ts-node-dev": "^1.1.8",
+    "tsconfig-paths": "^3.11.0",
     "typedi": "^0.8.0"
   },
   "devDependencies": {

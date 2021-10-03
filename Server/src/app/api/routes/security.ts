@@ -1,10 +1,10 @@
-import Express from 'express';
-import { database } from 'database/database';
-import { Container } from 'typedi/Container';
-import { Server as SocketServer } from 'socket.io';
-import { cleanSocketIpAddress } from 'app/utils/cleanSocketIpAddress';
+import { Router } from 'express';
+import { Container } from 'typedi';
+import { SecurityRepository } from 'app/repositories/SecurityRepository';
+import { SocketThing } from './../../sockets/Socket';
 
-const router = Express.Router();
+const router = Router();
+const securityRepository = Container.get(SecurityRepository);
 
 router.get('/history', async (req, res) => {
   const cursor = Number.parseInt(req.query.cursor as string);
@@ -21,16 +21,7 @@ router.get('/history', async (req, res) => {
     });
 
   try {
-    const history = (
-      await database.history.findMany({
-        skip: cursor || 0,
-        take: size || 20,
-        orderBy: {
-          timestamp: 'desc',
-        },
-      })
-    ).map((entry) => ({ ...entry, payload: JSON.parse(entry.payload) }));
-
+    const history = await securityRepository.getHistory(cursor, size, true);
     res.send({
       data: history,
       nextCursor: cursor + size,
@@ -42,11 +33,8 @@ router.get('/history', async (req, res) => {
 
 router.get('/connections', async (req, res) => {
   try {
-    const io = Container.get(SocketServer);
-    const sockets = await io.of('/').sockets;
-    const ipAddresses = [...sockets.values()].map((socket) =>
-      cleanSocketIpAddress(socket.handshake.address),
-    );
+    const socketThing = Container.get(SocketThing);
+    const { sockets, ipAddresses } = await socketThing.getConnections();
 
     res.send({ ipAddresses, connectionsCount: sockets.size });
   } catch (error) {
