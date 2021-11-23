@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { DateTime } from 'luxon';
+import { useMediaQuery } from '@react-hook/media-query';
 import cx from 'classnames';
 
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
@@ -36,6 +37,7 @@ const temperaturePeriods: TemperaturesPeriod[] = [
 
 export const Thermometer = () => {
   const dispatch = useDispatch();
+  const isDesktop = useMediaQuery('(min-width: 600px)');
   const { id } = useParams<{
     id: string;
   }>();
@@ -110,7 +112,10 @@ export const Thermometer = () => {
         {temperatures.length > 1 && (
           <>
             <div className={styles.chartContainer}>
-              <VictoryChart>
+              <VictoryChart
+                width={isDesktop ? 800 : undefined}
+                height={isDesktop ? 250 : undefined}
+              >
                 <VictoryLine
                   data={filteredTemperatures.map((t) => ({
                     value: t.value,
@@ -155,7 +160,7 @@ export const Thermometer = () => {
                 />
               </VictoryChart>
               <VictoryGroup
-                height={150}
+                height={isDesktop ? 40 : 150}
                 containerComponent={
                   <VictoryBrushContainer
                     brushDimension="x"
