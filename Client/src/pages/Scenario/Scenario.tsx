@@ -10,9 +10,10 @@ import {
 } from 'store/reducers/scenariosReducer';
 
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
-import { Scenario as IScenario } from 'types/Scenario';
+import { Scenario as IScenario, ScenarioEntryCondition } from 'types/Scenario';
 import { ScenarioProvider } from './ScenarioContext';
 import { ScenarioContent } from './ScenarioContent';
+import { ConditionEdit } from './Condition';
 
 export const Scenario = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,11 @@ export const Scenario = () => {
 
   const status = useSelector(selectScenarioStatus);
   const [editing, setEditing] = useState(false);
+
+  const [
+    editingCondition,
+    setEditingCondition,
+  ] = useState<ScenarioEntryCondition | null>(null);
 
   // Fetch scenario and reset view on leave
   useEffect(() => {
@@ -72,6 +78,10 @@ export const Scenario = () => {
     }
   };
 
+  const openConditionEdit = (condition: ScenarioEntryCondition) => {
+    setEditingCondition(condition);
+  };
+
   return (
     <DefaultLayout>
       <ScenarioProvider
@@ -84,9 +94,14 @@ export const Scenario = () => {
           status,
           saveScenario,
           deleteScenario,
+          openConditionEdit,
         }}
       >
-        <ScenarioContent />
+        {editingCondition ? (
+          <ConditionEdit condition={editingCondition} />
+        ) : (
+          <ScenarioContent />
+        )}
       </ScenarioProvider>
     </DefaultLayout>
   );

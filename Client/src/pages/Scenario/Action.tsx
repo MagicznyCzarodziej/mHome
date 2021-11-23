@@ -8,6 +8,8 @@ import { Select } from 'components/Select/Select';
 
 import Icon from '@mdi/react';
 import { mdiClose } from '@mdi/js';
+import { useSelector } from 'react-redux';
+import { selectAllGroups } from 'store/reducers/groupsReducer';
 
 export const Action = (props: {
   action: ScenarioEntryAction;
@@ -15,6 +17,8 @@ export const Action = (props: {
 }) => {
   const { action, index } = props;
   const { setUpdatedScenario, editing } = useContext(ScenarioContext);
+
+  const groups = useSelector(selectAllGroups);
 
   return (
     <div key={action.id} className={styles.action}>
@@ -53,8 +57,28 @@ export const Action = (props: {
             groupId: (
               <div className={styles.field}>
                 <div className={styles.field__label}>Grupa</div>
-                <div key={index} className={styles.field__value}>
-                  {action.payload?.groupId}
+                <div className={styles.field__value}>
+                  <Select
+                    placeholder="Wybierz grupę"
+                    disabled={!editing}
+                    value={action.payload?.groupId?.toString() || ''}
+                    handleChange={(value: string) => {
+                      setUpdatedScenario((draft) => {
+                        draft?.entries.forEach((entry) => {
+                          const act = entry.actions.find(
+                            (a) => a.id === action.id
+                          );
+                          if (act) act.payload!.groupId = value;
+                        });
+                      });
+                    }}
+                  >
+                    {groups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               </div>
             ),

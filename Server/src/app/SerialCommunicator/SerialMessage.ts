@@ -34,6 +34,8 @@ export enum SerialMessageSource {
 export const SerialMessageConstants = {
   auxilary: {
     TEMPERATURE_BELOW_ZERO: 1,
+    BLIND_STATUS_MOVING_UP: 1,
+    BLIND_STATUS_MOVING_DOWN: 2,
   },
 };
 

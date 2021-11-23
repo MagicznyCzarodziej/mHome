@@ -1,0 +1,41 @@
+@import '~assets/styles/variables'
+
+.sidebar
+  display: flex
+  flex-direction: column
+  background-color: $cGray900
+  +noSelect
+
+.header
+  font-size: 1.5rem
+  text-align: center
+  border-bottom: 1px solid $cGray800
+  margin: 0 0.5rem
+  height: 72px
+  box-sizing: border-box
+  display: flex
+  justify-content: center
+  align-items: center
+
+.app-name
+  color: $cGreen500
+
+.navigation
+  display: flex
+  flex-direction: column
+
+  a
+    display: block
+    padding: 1rem
+    height: 100%
+    color: $cGray500
+    text-decoration: none
+    svg
+      vertical-align: -6px
+      margin-right: 0.4rem
+    &:hover
+      background-color: $cGray800
+
+  .link--active
+    color: $cGreen500
+    background-color: $cGray800

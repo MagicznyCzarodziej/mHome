@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useHistory } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
+import { useMediaQuery } from '@react-hook/media-query';
 import cx from 'classnames';
 
 import { Group } from 'types/Group';
@@ -33,6 +34,7 @@ export const GridTile = (props: Props) => {
   const { group } = props;
   const history = useHistory();
   const dispatch = useDispatch();
+  const isDesktop = useMediaQuery('(min-width: 600px)');
 
   const icon = mapIconNameToPath(group.icon);
   const reeds = useSelector(selectReedsByGroupId(group.id));
@@ -135,7 +137,7 @@ export const GridTile = (props: Props) => {
             [styles['tile__icon--active']]: isAnyLightOn,
           })}
         >
-          <Icon path={icon} size="10vw" />
+          <Icon path={icon} size={isDesktop ? '5rem' : '10vw'} />
         </div>
         <div className={styles.tile__label}>{group.name}</div>
         <div className={styles.tile__lights}>

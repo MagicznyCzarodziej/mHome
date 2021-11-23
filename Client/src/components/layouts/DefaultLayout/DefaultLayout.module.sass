@@ -8,12 +8,23 @@
   grid-template-columns: 1fr
   grid-template-areas: 'topbar' 'content' 'menu'
 
+.layout--desktop
+  display: grid
+  height: 100%
+  background-color: #0b0f12
+  grid-template-rows: auto
+  grid-template-columns: 180px 1fr
+  grid-template-areas: 'sidebar content'
+
 .layout__page-content
   overflow-y: auto
   grid-area: content
 
 .layout__topbar
   grid-area: topbar
+
+.layout__sidebar
+  grid-area: sidebar
 
 .menu
   grid-area: menu

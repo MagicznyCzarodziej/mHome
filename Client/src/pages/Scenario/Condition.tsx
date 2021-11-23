@@ -16,71 +16,9 @@ export const Condition = (props: {
   const { condition, index } = props;
   const { setUpdatedScenario, editing } = useContext(ScenarioContext);
 
-  const mapCondition = (condition: ScenarioEntryCondition) => {
-    const mapTypeToValue = (type: ScenarioConditionType | null) => {
-      if (type === null) return '';
-      if (type.includes('TEMPERATURE')) return 'TEMPERATURE';
-      else if (type.includes('TIME')) return 'TIME';
-      else if (type.includes('BLIND')) return 'BLIND';
-      else return type;
-    };
-
-    return (
-      <>
-        <Select
-          disabled={!editing}
-          value={mapTypeToValue(condition.type)}
-          handleChange={(value: ScenarioConditionType) => {
-            setUpdatedScenario((draft) => {
-              draft?.entries.forEach((entry) => {
-                const cond = entry.conditions.find(
-                  (c) => c.id === condition.id
-                );
-                if (cond) cond.type = value;
-              });
-            });
-          }}
-          placeholder="Wybierz warunek"
-        >
-          {conditionOptions.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Select>
-
-        {}
-      </>
-    );
-  };
-
   return (
     <div className={styles.condition}>
-      {mapCondition(condition)}
-
-      {condition.type &&
-        ScenarioConditionSelect[condition.type]?.fields.map((field, index) => {
-          return {
-            elementId: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>ID</div>
-                <div key={index} className={styles.field__value}>
-                  {condition.elementId}
-                </div>
-              </div>
-            ),
-            groupId: null, // Action-only field
-            value: (
-              <div className={styles.field}>
-                <div className={styles.field__label}>Stan</div>
-                <div key={index} className={styles.field__value}>
-                  {condition.value}
-                </div>
-              </div>
-            ),
-          }[field];
-        })}
-
+      <ConditionSummary condition={condition} />
       {editing && (
         <div
           className={styles['delete-row']}
@@ -105,6 +43,77 @@ export const Condition = (props: {
   );
 };
 
+const ConditionSummary = (props: { condition: ScenarioEntryCondition }) => {
+  const { condition } = props;
+  const { openConditionEdit } = useContext(ScenarioContext);
+  if (!condition.type) return null;
+
+  return (
+    <div
+      className={styles.condition__summary}
+      onClick={() => {
+        openConditionEdit(condition);
+      }}
+    >
+      {typeToLabel(condition.type)}
+      {elementIdToLabel(condition.type, condition.elementId)}
+      {valueToLabel(condition.type, condition.value)}
+    </div>
+  );
+};
+
+const typeToLabel = (type: ScenarioConditionType) => {
+  return (
+    <div>
+      {
+        {
+          REED: 'Kontaktron',
+          TEMPERATURE_ABOVE: 'Temperatura >',
+          TEMPERATURE_BELOW: 'Temperatura <',
+          CRON: 'CRON',
+          TIME: 'Czas',
+          TIME_BEFORE: 'Czas przed',
+          TIME_AFTER: 'Czas po',
+          LIGHT: 'Światło',
+          BLIND_ABOVE: 'Roleta >',
+          BLIND_BELOW: 'Roleta <',
+        }[type]
+      }
+    </div>
+  );
+};
+
+const elementIdToLabel = (
+  type: ScenarioConditionType,
+  elementId: number | null | undefined
+) => {
+  if (elementId === null || elementId === undefined) return null;
+  else return <div>#{elementId}</div>;
+};
+
+const valueToLabel = (
+  type: ScenarioConditionType,
+  value: string | number | null
+) => {
+  if (value === null) return '';
+
+  switch (type) {
+    case 'REED': {
+      if (value === 'OPEN') return <div>OTWARTY</div>;
+      else return <div>ZAMKNIĘTY</div>;
+    }
+
+    case 'BLIND_ABOVE':
+    case 'BLIND_BELOW': {
+      return <div>{value}%</div>;
+    }
+
+    default: {
+      return <div>{value}</div>;
+    }
+  }
+};
+
 const conditionOptions = [
   { value: 'REED', label: 'Kontaktron' },
   { value: 'TEMPERATURE', label: 'Temperatura' },
@@ -113,3 +122,15 @@ const conditionOptions = [
   { value: 'LIGHT', label: 'Światło' },
   { value: 'BLIND', label: 'Roleta' },
 ];
+
+export const ConditionEdit = (props: any) => {
+  const { condition } = props;
+  const { updatedScenario, setUpdatedScenario, saveScenario } = useContext(
+    ScenarioContext
+  );
+  return (
+    <div>
+      {condition.type} <button onClick={() => {}}>save</button>
+    </div>
+  );
+};

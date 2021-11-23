@@ -11,6 +11,7 @@ interface IScenarioContext {
   status: ScenarioStatus;
   saveScenario: () => void;
   deleteScenario: () => void;
+  openConditionEdit: Function;
 }
 
 export const ScenarioContext = createContext<IScenarioContext>({
@@ -22,6 +23,7 @@ export const ScenarioContext = createContext<IScenarioContext>({
   status: 'IDLE',
   saveScenario: () => void 0,
   deleteScenario: () => void 0,
+  openConditionEdit: () => void 0,
 });
 
 export const ScenarioProvider = ScenarioContext.Provider;
