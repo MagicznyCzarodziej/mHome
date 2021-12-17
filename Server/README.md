@@ -15,7 +15,7 @@
 Optional: Insert default data (groups, elements, etc.) to database
 `yarn run db:seed` WARNING! This will erase all data from existing database (states, history, logs, etc.)
 
-If the schema was changed, you need to run `yarn migrate dev` and `yarn migrate deploty` to update database to new schema.
+If the schema was changed, you need to run `yarn migrate dev` and `yarn migrate deploy` to update database to new schema.
 
 3. Set SerialComumunicator path
 

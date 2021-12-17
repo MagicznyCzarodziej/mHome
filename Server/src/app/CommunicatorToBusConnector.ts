@@ -11,6 +11,7 @@ import { Events, EventType } from './EventBus/Events';
 import { LightsRepository } from 'app/repositories/LightsRepository';
 import { SwitchState } from './utils/SwitchState';
 import { GroupsRepository } from 'app/repositories/GroupsRepository';
+import { BlindsRepository } from 'app/repositories/BlindsRepository';
 
 export class Connector {
   constructor() {
@@ -76,6 +77,23 @@ export class Connector {
         payload.position,
       );
       communicator.send(message);
+    });
+
+    EventBus.subscribe(EventType.BLIND_SET_ALL, async ({ payload }) => {
+      const blindsRepository = Container.get(BlindsRepository);
+
+      const position = payload.position;
+      const blinds = await blindsRepository.getAllBlinds();
+      blinds.forEach((blind) => {
+        const element = blind.id;
+        const message = new SerialMessage(
+          SerialMessageSource.SOCKETS,
+          SerialMessageType.BLIND_SET,
+          element,
+          position,
+        );
+        communicator.send(message);
+      });
     });
   }
 

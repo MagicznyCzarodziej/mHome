@@ -30,9 +30,10 @@ const blindStateRequest = createSocketAction<{ id: number; position: number }>(
 //   position: number;
 // }>(SocketMessage.toServer.BLINDS_SET_GROUP);
 
-// const blindsStateAllRequest = createSocketAction<{ position: number }>(
-//   SocketMessage.toServer.BLINDS_SET_ALL
-// );
+const blindsStateAllRequest = createSocketAction<{ position: number }>(
+  // SocketMessage.toServer.BLINDS_SET_ALL
+  'blinds/set/all'
+);
 
 const fetchAllBlinds = createAsyncThunk('blinds/fetchAllBlinds', async () => {
   const response = await BlindService.getAllBlinds();
@@ -75,7 +76,7 @@ const blindsSlice = createSlice({
 export const blindsActions = {
   ...blindsSlice.actions,
   blindStateRequest,
-  // blindsStateAllRequest,
+  blindsStateAllRequest,
   // blindsStateGroupRequest,
   fetchAllBlinds,
 };

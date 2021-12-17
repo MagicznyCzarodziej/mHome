@@ -84,6 +84,7 @@ const scenariosSlice = createSlice({
     clearScenario: (state) => {
       state.scenario = null;
       state.scenarioStatus = 'IDLE';
+      state.createScenarioStatus = 'IDLE';
     },
   },
   extraReducers: (builder) => {
@@ -144,6 +145,7 @@ const scenariosSlice = createSlice({
       })
       .addCase(createScenario.fulfilled, (state, action) => {
         state.scenarios = [...state.scenarios, action.payload];
+        state.scenario = action.payload;
         state.createScenarioStatus = 'SUCCESS';
       })
       .addCase(createScenario.rejected, (state, action) => {

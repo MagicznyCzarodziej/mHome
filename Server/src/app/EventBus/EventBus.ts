@@ -1,6 +1,7 @@
 import { Logger } from 'app/utils/Logger';
 import { Container } from 'typedi';
 import { EventType, MHomeEvent, PublishMHomeEvent } from './Events';
+import { SecurityRepository } from 'app/repositories/SecurityRepository';
 
 type NewMHomeEvent = Omit<MHomeEvent, 'timestamp'>;
 
@@ -15,6 +16,7 @@ class Bus {
 
   private events: MHomeEvent[] = [];
   private observers: Observer[] = [];
+  private securityRepository = Container.get(SecurityRepository);
 
   public publish<E extends PublishMHomeEvent>(
     type: E['type'],
@@ -32,6 +34,8 @@ class Bus {
     this.observers.forEach((observer) => {
       if (observer.type === newEvent.type) observer.callback(newEvent);
     });
+
+    this.securityRepository.saveHistoryEvent(type, '', payload);
   }
   public subscribe<E extends MHomeEvent>(
     type: E['type'],

@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 
 import styles from './Scenario.module.sass';
 
@@ -7,7 +7,9 @@ import { ScenarioControls } from './ScenarioControls';
 import { Entries } from './Entries';
 
 export const ScenarioContent = () => {
-  const { scenario } = useContext(ScenarioContext);
+  const { scenario, updatedScenario, setUpdatedScenario, editing } = useContext(
+    ScenarioContext
+  );
 
   if (!scenario) return null;
 
@@ -15,9 +17,37 @@ export const ScenarioContent = () => {
     <div className={styles.scenario}>
       <div className={styles.scenario__header}>
         <div className={styles.scenario__labels}>
-          <div className={styles.scenario__name}>{scenario.name}</div>
+          <div className={styles.scenario__name}>
+            {editing ? (
+              <div className={styles.name__control}>
+                <input
+                  value={updatedScenario?.name}
+                  onChange={(event) => {
+                    setUpdatedScenario((draft) => {
+                      draft!.name = event.target.value;
+                    });
+                  }}
+                />
+              </div>
+            ) : (
+              scenario.name
+            )}
+          </div>
           <div className={styles.scenario__description}>
-            {scenario.description}
+            {editing ? (
+              <div className={styles.name__control}>
+                <input
+                  value={scenario.description}
+                  onChange={(event) => {
+                    setUpdatedScenario((draft) => {
+                      draft!.description = event.target.value;
+                    });
+                  }}
+                />
+              </div>
+            ) : (
+              scenario.description
+            )}
           </div>
         </div>
         <ScenarioControls />

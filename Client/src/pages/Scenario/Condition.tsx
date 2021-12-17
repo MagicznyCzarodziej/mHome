@@ -14,7 +14,9 @@ export const Condition = (props: {
   index: number;
 }) => {
   const { condition, index } = props;
-  const { setUpdatedScenario, editing } = useContext(ScenarioContext);
+  const { setUpdatedScenario, updatedScenario, editing } = useContext(
+    ScenarioContext
+  );
 
   return (
     <div className={styles.condition}>
@@ -46,72 +48,136 @@ export const Condition = (props: {
 const ConditionSummary = (props: { condition: ScenarioEntryCondition }) => {
   const { condition } = props;
   const { openConditionEdit } = useContext(ScenarioContext);
-  if (!condition.type) return null;
 
   return (
     <div
       className={styles.condition__summary}
       onClick={() => {
-        openConditionEdit(condition);
+        // openConditionEdit(condition);
       }}
     >
-      {typeToLabel(condition.type)}
-      {elementIdToLabel(condition.type, condition.elementId)}
-      {valueToLabel(condition.type, condition.value)}
+      <ConditionType condition={condition} />
+      <ElementId condition={condition} />
+      <ConditionValue condition={condition} />
     </div>
   );
 };
 
-const typeToLabel = (type: ScenarioConditionType) => {
+const ConditionType = (props: { condition: ScenarioEntryCondition }) => {
+  const { condition } = props;
+  const { setUpdatedScenario, editing } = useContext(ScenarioContext);
+
   return (
-    <div>
-      {
-        {
-          REED: 'Kontaktron',
-          TEMPERATURE_ABOVE: 'Temperatura >',
-          TEMPERATURE_BELOW: 'Temperatura <',
-          CRON: 'CRON',
-          TIME: 'Czas',
-          TIME_BEFORE: 'Czas przed',
-          TIME_AFTER: 'Czas po',
-          LIGHT: 'Światło',
-          BLIND_ABOVE: 'Roleta >',
-          BLIND_BELOW: 'Roleta <',
-        }[type]
-      }
+    <div
+      onClick={() => {
+        if (!editing) return;
+        setUpdatedScenario((draft) => {
+          draft?.entries.forEach((entry) => {
+            const cond = entry.conditions.find((c) => c.id === condition.id);
+            if (cond) {
+              const val = prompt(
+                'Wartość',
+                cond.type?.toString() ?? ''
+              ) as string;
+              cond.type = val as ScenarioConditionType;
+            }
+          });
+        });
+      }}
+    >
+      {condition.type
+        ? {
+            REED: 'Kontaktron',
+            TEMPERATURE_ABOVE: 'Temperatura >',
+            TEMPERATURE_BELOW: 'Temperatura <',
+            CRON: 'CRON',
+            TIME: 'Czas',
+            TIME_BEFORE: 'Czas przed',
+            TIME_AFTER: 'Czas po',
+            LIGHT: 'Światło',
+            BLIND_ABOVE: 'Roleta >',
+            BLIND_BELOW: 'Roleta <',
+          }[condition.type]
+        : '[TYP]'}
     </div>
   );
 };
 
-const elementIdToLabel = (
-  type: ScenarioConditionType,
-  elementId: number | null | undefined
-) => {
-  if (elementId === null || elementId === undefined) return null;
-  else return <div>#{elementId}</div>;
+const ElementId = (props: { condition: ScenarioEntryCondition }) => {
+  const { condition } = props;
+  const { setUpdatedScenario, editing } = useContext(ScenarioContext);
+
+  if (condition.type?.includes('CRON') || condition.type?.includes('TIME'))
+    return null;
+
+  return (
+    <div
+      onClick={() => {
+        if (!editing) return;
+        setUpdatedScenario((draft) => {
+          draft?.entries.forEach((entry) => {
+            const cond = entry.conditions.find((c) => c.id === condition.id);
+            if (cond) {
+              const val = prompt(
+                'Wartość',
+                cond.elementId?.toString() ?? ''
+              ) as string;
+              cond.elementId = Number.parseInt(val);
+            }
+          });
+        });
+      }}
+    >
+      #{condition.elementId ?? '[ELEMENT]'}
+    </div>
+  );
 };
 
-const valueToLabel = (
-  type: ScenarioConditionType,
-  value: string | number | null
-) => {
-  if (value === null) return '';
+const ConditionValue = (props: { condition: ScenarioEntryCondition }) => {
+  const { condition } = props;
+  const { setUpdatedScenario, editing } = useContext(ScenarioContext);
+  let displayValue;
 
-  switch (type) {
+  switch (condition.type) {
     case 'REED': {
-      if (value === 'OPEN') return <div>OTWARTY</div>;
-      else return <div>ZAMKNIĘTY</div>;
+      if (condition.value === 'OPEN') displayValue = 'OTWARTY';
+      else displayValue = 'ZAMKNIĘTY';
+      break;
     }
 
     case 'BLIND_ABOVE':
     case 'BLIND_BELOW': {
-      return <div>{value}%</div>;
+      displayValue = condition.value + '%';
+      break;
     }
 
     default: {
-      return <div>{value}</div>;
+      displayValue = condition.value;
+      break;
     }
   }
+  if (condition.value === null) displayValue = '[WARTOŚĆ]';
+
+  return (
+    <div
+      onClick={() => {
+        if (!editing) return;
+        setUpdatedScenario((draft) => {
+          draft?.entries.forEach((entry) => {
+            const cond = entry.conditions.find((c) => c.id === condition.id);
+            if (cond) {
+              const val =
+                (prompt('Wartość', cond.value?.toString() ?? '') as string) ||
+                null;
+              cond.value = val;
+            }
+          });
+        });
+      }}
+    >
+      {displayValue}
+    </div>
+  );
 };
 
 const conditionOptions = [

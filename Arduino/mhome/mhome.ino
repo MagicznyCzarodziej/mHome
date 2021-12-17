@@ -41,6 +41,15 @@
 // RequestId to use when message is not a response to request
 #define NO_REQUEST_ID "A00"
 
+int sign(int value) {
+  if (value > 0)
+    return 1;
+  else if (value < 0)
+    return -1;
+  else
+    return 0;
+}
+
 /* ------------------------------------
       MESSAGE
 ------------------------------------ */
@@ -119,8 +128,11 @@ byte previousReedsState[REEDS_SIZE] = {LOW};
 unsigned long reedsTimes[REEDS_SIZE] = {0};
 
 // BLINDS
+byte blindsPins[BLINDS_SIZE][2] = {{10, 11}, {5, 6}}; // Dwa kierunki
 byte blindsPosition[BLINDS_SIZE] = {0, 0};
 byte blindsStatus[BLINDS_SIZE] = {AUX_BLIND_STATUS_IDLE, AUX_BLIND_STATUS_IDLE};
+unsigned long blindsTime[BLINDS_SIZE] = {millis(), millis()};
+byte blindsRequestedPosition[BLINDS_SIZE] = {0, 0};
 
 unsigned long int lastBlindTime = 0; //TEMP
 int requestedBlindPosition = 0;
@@ -165,6 +177,12 @@ void setup() {
   for (byte i = 0; i < REEDS_SIZE; i++) {
     pinMode(reedsPins[i], INPUT);
   }
+
+  // BLINDS
+  for (byte i = 0; i < BLINDS_SIZE; i++) {
+    pinMode(blindsPins[i][0], OUTPUT);
+    pinMode(blindsPins[i][1], OUTPUT);
+  }
 }
 
 /* ------------------------------------
@@ -172,7 +190,7 @@ void setup() {
 ------------------------------------ */
 
 void loop() {
-  // SWITHES
+  // SWITCHES
   for (byte i = 0; i < SWITCHES_SIZE; i++) {
     switchesState[i] = digitalRead(switchesPins[i]);
     byte lightIndex = mapSwitchToLight[i];
@@ -209,10 +227,22 @@ void loop() {
   }
 
   // BLINDS
-  if (blindsStatus[0] != AUX_BLIND_STATUS_IDLE && millis() - lastBlindTime > 3000) {
-    blindsPosition[0] = requestedBlindPosition;
-    blindsStatus[0] = AUX_BLIND_STATUS_IDLE;
-    sendMessage(NO_REQUEST_ID, CMD_BLIND_RESPONSE, 0, blindsPosition[0], blindsStatus[0]);
+  for (byte i = 0; i < BLINDS_SIZE; i++) {
+    if (millis() - blindsTime[i] > 100) {
+      blindsTime[i] = millis();
+      if (blindsPosition[i] != blindsRequestedPosition[i]) {
+        blindsPosition[i] += sign(blindsRequestedPosition[i] - blindsPosition[i]);
+
+        if (blindsPosition[i] == blindsRequestedPosition[i]) {
+          blindsStatus[i] = AUX_BLIND_STATUS_IDLE;
+          digitalWrite(blindsPins[i][0], LOW);
+          digitalWrite(blindsPins[i][1], LOW);
+          sendMessage(NO_REQUEST_ID, CMD_BLIND_RESPONSE, i, blindsPosition[i], blindsStatus[i]);
+        } else if (blindsPosition[i] % 10 == 0) {
+          sendMessage(NO_REQUEST_ID, CMD_BLIND_RESPONSE, i, blindsPosition[i], blindsStatus[i]);
+        }
+      }
+    }
   }
 
   // SERIAL
@@ -221,7 +251,7 @@ void loop() {
     switch (received) {
       case '>':
         messageIndex = 0;
-        break; // TODOL: Check if previous msg was correct
+        break;
       case '<':
         if (messageIndex != MESSAGE_LENGTH) { // Message too short
           invalidMessage();
@@ -347,13 +377,20 @@ void setBlind(String requestId, int id, int value) {
     sendMessage(requestId, CMD_ERROR, id, value, 0);
     return;
   }
+
+  blindsTime[id] = millis();
   int currentPosition = blindsPosition[id];
-  blindsPosition[id] = value;
-  // TODO: Change status when moving up or down
-  lastBlindTime = millis();
-  requestedBlindPosition = value;
-  blindsStatus[id] = currentPosition < value
-                         ? AUX_BLIND_STATUS_MOVING_UP
-                         : AUX_BLIND_STATUS_MOVING_DOWN;
+  blindsRequestedPosition[id] = value;
+
+  if (currentPosition < value) {
+    blindsStatus[id] = AUX_BLIND_STATUS_MOVING_UP;
+
+    digitalWrite(blindsPins[id][0], HIGH);
+  } else if (currentPosition > value) {
+    blindsStatus[id] = AUX_BLIND_STATUS_MOVING_DOWN;
+
+    digitalWrite(blindsPins[id][1], HIGH);
+  }
+
   sendMessage(requestId, CMD_BLIND_RESPONSE, id, currentPosition, blindsStatus[id]);
 }

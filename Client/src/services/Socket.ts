@@ -4,7 +4,6 @@ import { lightsActions } from 'store/reducers/lightsReducer';
 import { thermometersActions } from 'store/reducers/thermometersReducer';
 import { reedsActions } from 'store/reducers/reedsReducer';
 import { blindsActions } from 'store/reducers/blindsReducer';
-import { BlindStatus } from 'types/Blind';
 import { getApiIp } from './Api';
 
 export const SocketMessage = {

@@ -17,6 +17,7 @@ import {
   mdiBlindsOpen,
 } from '@mdi/js';
 import { lightsActions } from 'store/reducers/lightsReducer';
+import { blindsActions } from 'store/reducers/blindsReducer';
 
 // Order in which groups tiles will be placed
 const groupsOrder = [
@@ -60,6 +61,24 @@ export const Dashboard = () => {
       lightsActions.lightsStateGroupRequest({
         groupId: 'OUTSIDE',
         state,
+      })
+    );
+    navigator.vibrate(50);
+  };
+
+  const handleCloseAllBlinds = () => {
+    dispatch(
+      blindsActions.blindsStateAllRequest({
+        position: 0,
+      })
+    );
+    navigator.vibrate(50);
+  };
+
+  const handleOpenAllBlinds = () => {
+    dispatch(
+      blindsActions.blindsStateAllRequest({
+        position: 100,
       })
     );
     navigator.vibrate(50);
@@ -134,8 +153,12 @@ export const Dashboard = () => {
           </div>
           <div className={styles.controls__item}>
             <div className={styles.controls__buttons}>
-              <Icon path={mdiBlinds} size="1.75rem" />
-              <Icon path={mdiBlindsOpen} size="1.75rem" />
+              <div onClick={() => handleCloseAllBlinds()}>
+                <Icon path={mdiBlinds} size="1.75rem" />
+              </div>
+              <div onClick={() => handleOpenAllBlinds()}>
+                <Icon path={mdiBlindsOpen} size="1.75rem" />
+              </div>
             </div>
             <div className={styles.controls__label}>Wszystkie</div>
           </div>

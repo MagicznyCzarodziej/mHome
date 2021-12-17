@@ -1,9 +1,11 @@
 import { Server } from 'http';
 import { Server as SocketServer, Socket } from 'socket.io';
+import { Container } from 'typedi';
 import { EventBus } from '../EventBus/EventBus';
 import { Logger } from 'app/utils/Logger';
 import { Events, EventType } from 'app/EventBus/Events';
 import { cleanSocketIpAddress } from 'app/utils/cleanSocketIpAddress';
+import { SecurityRepository } from 'app/repositories/SecurityRepository';
 
 export class SocketThing {
   private io: SocketServer;
@@ -19,7 +21,9 @@ export class SocketThing {
       },
     });
 
-    this.io.on('connection', (socket: Socket) => {
+    const securityRepository = Container.get(SecurityRepository);
+
+    this.io.on('connection', async (socket: Socket) => {
       this.logger.info(`Socket client connected ${socket.id}`);
 
       // IP of the client that sent /msg HTTP request to emit socket event
@@ -33,6 +37,10 @@ export class SocketThing {
       const isLocalClient =
         socket.request.connection.localAddress === undefined;
       const ipString = isLocalClient ? `${clientIP} (via /msg)` : clientIP;
+
+      const connectionId = await securityRepository.saveConnection(
+        clientIP || 'unknown IP',
+      );
 
       socket.onAny((event, data) => {
         this.logger.info(
@@ -48,6 +56,7 @@ export class SocketThing {
             this.io.of('/').sockets.size
           })`,
         );
+        securityRepository.closeConnection(connectionId);
       });
     });
 
@@ -81,6 +90,11 @@ export class SocketThing {
     // Set blind position
     socket.on(EventType.BLIND_SET, async (data) => {
       EventBus.publish<Events.BlindSet>(EventType.BLIND_SET, data);
+    });
+
+    // Set all blinds positions
+    socket.on(EventType.BLIND_SET_ALL, async (data) => {
+      EventBus.publish<Events.BlindSetAll>(EventType.BLIND_SET_ALL, data);
     });
   }
 

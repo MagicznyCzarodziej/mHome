@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import cx from 'classnames';
 import { ScenarioContext } from './ScenarioContext';
 
 import styles from './Scenario.module.sass';
@@ -39,7 +40,9 @@ export const Action = (props: {
           Wybierz akcję
         </option>
         {Object.entries(ScenarioActionSelect).map(([type, { label }]) => (
-          <option value={type}>{label}</option>
+          <option key={type} value={type}>
+            {label}
+          </option>
         ))}
       </Select>
 
@@ -47,17 +50,42 @@ export const Action = (props: {
         ScenarioActionSelect[action.type].fields.map((field) => {
           return {
             elementId: (
-              <div className={styles.field}>
+              <div className={styles.field} key={field}>
                 <div className={styles.field__label}>ID</div>
-                <div key={index} className={styles.field__value}>
+                <div
+                  key={index}
+                  className={styles.field__value}
+                  onClick={() => {
+                    if (!editing) return;
+                    setUpdatedScenario((draft) => {
+                      draft?.entries.forEach((entry) => {
+                        const act = entry.actions.find(
+                          (a) => a.id === action.id
+                        );
+                        if (act) {
+                          const val = prompt(
+                            'Wartość',
+                            act.payload!.value?.toString() ?? ''
+                          ) as string;
+                          act.payload!.elementId = Number.parseInt(val);
+                        }
+                      });
+                    });
+                  }}
+                >
                   {action.payload?.elementId}
                 </div>
               </div>
             ),
             groupId: (
-              <div className={styles.field}>
+              <div className={styles.field} key={field}>
                 <div className={styles.field__label}>Grupa</div>
-                <div className={styles.field__value}>
+                <div
+                  className={cx([
+                    styles.field__value,
+                    styles['field__value--select'],
+                  ])}
+                >
                   <Select
                     placeholder="Wybierz grupę"
                     disabled={!editing}
@@ -83,9 +111,29 @@ export const Action = (props: {
               </div>
             ),
             value: (
-              <div className={styles.field}>
+              <div className={styles.field} key={field}>
                 <div className={styles.field__label}>Wartość</div>
-                <div key={index} className={styles.field__value}>
+                <div
+                  key={index}
+                  className={styles.field__value}
+                  onClick={() => {
+                    if (!editing) return;
+                    setUpdatedScenario((draft) => {
+                      draft?.entries.forEach((entry) => {
+                        const act = entry.actions.find(
+                          (a) => a.id === action.id
+                        );
+                        if (act) {
+                          const val = prompt(
+                            'Wartość',
+                            act.payload!.value?.toString() ?? ''
+                          ) as string;
+                          act.payload!.value = val;
+                        }
+                      });
+                    });
+                  }}
+                >
                   {action.payload?.value}
                 </div>
               </div>

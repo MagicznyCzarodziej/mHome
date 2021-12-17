@@ -23,4 +23,36 @@ export class SecurityRepository {
         }))
       : history;
   }
+
+  async saveHistoryEvent(eventType: string, source: string, payload: any) {
+    await database.history.create({
+      data: {
+        eventType,
+        payload: JSON.stringify(payload),
+        source,
+      },
+    });
+  }
+
+  async saveConnection(ip: string) {
+    const connection = await database.connection.create({
+      data: {
+        ip,
+      },
+    });
+    return connection.id;
+  }
+
+  async closeConnection(id: number) {
+    await database.connection.update({
+      where: { id: id },
+      data: {
+        disconnectedAt: new Date(),
+      },
+    });
+  }
+
+  async getConnections() {
+    return await database.connection.findMany();
+  }
 }

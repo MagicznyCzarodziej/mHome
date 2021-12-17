@@ -1,9 +1,14 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { nanoid } from 'nanoid';
+import { Link, useHistory } from 'react-router-dom';
 import cx from 'classnames';
 
-import { scenariosActions } from 'store/reducers/scenariosReducer';
+import {
+  scenariosActions,
+  selectCreateScenarioStatus,
+  selectScenario,
+} from 'store/reducers/scenariosReducer';
 import { selectAllScenarios } from 'store/reducers/scenariosReducer';
 
 import { DefaultLayout } from 'components/layouts/DefaultLayout/DefaultLayout';
@@ -14,12 +19,41 @@ import { mdiPlus } from '@mdi/js';
 
 export const Scenarios = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const status = useSelector(selectCreateScenarioStatus);
 
+  const createdScenario = useSelector(selectScenario);
   const allScenarios = useSelector(selectAllScenarios);
 
   useEffect(() => {
+    dispatch(scenariosActions.clearScenario());
     dispatch(scenariosActions.fetchAllScenarios());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (status === 'SUCCESS') {
+      dispatch(scenariosActions.clearScenario());
+      history.push(`/scenarios/${createdScenario!.id}`);
+    }
+  }, [status, history, createdScenario, dispatch]);
+
+  const createScenario = () => {
+    dispatch(
+      scenariosActions.createScenario({
+        name: 'Nowy scenariusz',
+        active: false,
+        description: 'Opis scenariusza',
+        entries: [
+          {
+            id: nanoid(),
+            parentEntry: null,
+            conditions: [],
+            actions: [],
+          },
+        ],
+      })
+    );
+  };
 
   return (
     <DefaultLayout>
@@ -39,11 +73,14 @@ export const Scenarios = () => {
             ))}
         </div>
 
-        <Link to="/scenarios/new">
-          <div className={styles['create-scenario']}>
-            <Icon size="1.7rem" path={mdiPlus} />
-          </div>
-        </Link>
+        <div
+          className={styles['create-scenario']}
+          onClick={() => {
+            createScenario();
+          }}
+        >
+          <Icon size="1.7rem" path={mdiPlus} />
+        </div>
       </div>
     </DefaultLayout>
   );

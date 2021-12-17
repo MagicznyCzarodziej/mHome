@@ -63,7 +63,11 @@ export const Entry = (props: Props) => {
                 ?.actions.push({
                   id: nanoid(),
                   type: null,
-                  payload: null,
+                  payload: {
+                    elementId: undefined,
+                    value: undefined,
+                    groupId: undefined,
+                  },
                 });
             });
           }}
@@ -74,7 +78,7 @@ export const Entry = (props: Props) => {
       {updatedScenario?.entries
         .filter((e) => e.parentEntry === entry.id)
         .map((e) => (
-          <Entry entry={e} nestingLevel={nestingLevel + 1} />
+          <Entry key={e.id} entry={e} nestingLevel={nestingLevel + 1} />
         ))}
 
       {editing && (
