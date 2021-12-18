@@ -35,10 +35,25 @@ const initialState: SecurityState = {
 };
 
 // Actions
-const fetchHistory = createAsyncThunk('security/fetchHistory', async () => {
-  const response = await SecurityService.getHistory(0, 20);
-  return response.data;
-});
+const fetchHistory = createAsyncThunk(
+  'security/fetchHistory',
+  async ({
+    eventType,
+    timeFrom,
+    timeTo,
+  }: {
+    eventType: string;
+    timeFrom: number;
+    timeTo: number;
+  }) => {
+    const response = await SecurityService.getHistory(0, 20, {
+      eventType,
+      timeFrom,
+      timeTo,
+    });
+    return response.data;
+  }
+);
 
 const fetchHistoryNextPage = createAsyncThunk<any, void, { state: RootState }>(
   'security/fetchHistoryNextPage',
@@ -46,7 +61,8 @@ const fetchHistoryNextPage = createAsyncThunk<any, void, { state: RootState }>(
     const state = thunkApi.getState().security;
     const response = await SecurityService.getHistory(
       state.history.nextCursor,
-      20
+      20,
+      { eventType: 'ALL', timeTo: Date.now(), timeFrom: 0 }
     );
     return response.data;
   }
@@ -73,10 +89,13 @@ const securitySlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchHistory.fulfilled, (state, action) => {
+        console.log(state, action);
+
         state.history.loading = false;
         state.history.data = action.payload.data;
         state.history.nextCursor = action.payload.nextCursor;
-        if (action.payload.data.length === 0) state.history.hasNextPage = false;
+        if (action.payload.data?.length === 0)
+          state.history.hasNextPage = false;
       })
       .addCase(fetchHistory.rejected, (state, action) => {
         state.history.loading = false;
@@ -84,6 +103,7 @@ const securitySlice = createSlice({
       })
       .addCase(fetchHistoryNextPage.pending, (state, action) => {
         state.history.loading = false;
+        console.log(action);
       })
       .addCase(fetchHistoryNextPage.fulfilled, (state, action) => {
         state.history.loading = false;

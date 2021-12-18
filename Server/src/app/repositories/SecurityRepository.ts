@@ -7,21 +7,35 @@ export class SecurityRepository {
     cursor: number = 0,
     size: number = 20,
     parsePayload: boolean = false,
+    config: any = {},
   ) {
-    const history = await database.history.findMany({
-      skip: cursor,
-      take: size,
-      orderBy: {
-        timestamp: 'desc',
-      },
-    });
+    try {
+      const history = await database.history.findMany({
+        skip: cursor,
+        take: size,
+        orderBy: {
+          timestamp: 'desc',
+        },
+        where: {
+          timestamp: {
+            gte: config.timeFrom,
+            lte: config.timeTo,
+          },
+          ...(config.eventType !== 'ALL'
+            ? { eventType: config.eventType }
+            : {}),
+        },
+      });
 
-    return parsePayload
-      ? history.map((entry) => ({
-          ...entry,
-          payload: JSON.parse(entry.payload),
-        }))
-      : history;
+      return parsePayload
+        ? history.map((entry) => ({
+            ...entry,
+            payload: JSON.parse(entry.payload),
+          }))
+        : history;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async saveHistoryEvent(eventType: string, source: string, payload: any) {

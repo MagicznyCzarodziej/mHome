@@ -9,6 +9,15 @@ const securityRepository = Container.get(SecurityRepository);
 router.get('/history', async (req, res) => {
   const cursor = Number.parseInt(req.query.cursor as string);
   const size = Number.parseInt(req.query.size as string);
+  const eventType = req.query.eventType as string;
+  const timeFrom = new Date(Number.parseInt(req.query.from as string));
+  const timeTo = new Date(Number.parseInt(req.query.to as string));
+
+  const config = {
+    eventType,
+    timeFrom,
+    timeTo,
+  };
 
   if (isNaN(cursor))
     return res.status(401).send({
@@ -21,7 +30,12 @@ router.get('/history', async (req, res) => {
     });
 
   try {
-    const history = await securityRepository.getHistory(cursor, size, true);
+    const history = await securityRepository.getHistory(
+      cursor,
+      size,
+      true,
+      config,
+    );
     res.send({
       data: history,
       nextCursor: cursor + size,

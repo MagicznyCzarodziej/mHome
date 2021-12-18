@@ -94,7 +94,7 @@ const ConditionType = (props: { condition: ScenarioEntryCondition }) => {
             TIME: 'Czas',
             TIME_BEFORE: 'Czas przed',
             TIME_AFTER: 'Czas po',
-            LIGHT: 'Światło',
+            LIGHT_STATE: 'Światło',
             BLIND_ABOVE: 'Roleta >',
             BLIND_BELOW: 'Roleta <',
           }[condition.type]
@@ -148,6 +148,12 @@ const ConditionValue = (props: { condition: ScenarioEntryCondition }) => {
     case 'BLIND_ABOVE':
     case 'BLIND_BELOW': {
       displayValue = condition.value + '%';
+      break;
+    }
+
+    case 'LIGHT_STATE': {
+      if (condition.value === 'ON') displayValue = 'WŁĄCZONE';
+      else displayValue = 'WYŁĄCZONE';
       break;
     }
 

@@ -15,7 +15,7 @@ export const ScenarioConditionSelect: {
   TIME: { label: 'Czas', fields: ['value'] },
   TIME_BEFORE: { label: 'Czas <', fields: ['value'] },
   TIME_AFTER: { label: 'Czas >', fields: ['value'] },
-  LIGHT: { label: 'Światło', fields: ['elementId', 'value'] },
+  LIGHT_STATE: { label: 'Światło', fields: ['elementId', 'value'] },
   BLIND_ABOVE: { label: 'Otwarcie rolety >', fields: ['elementId', 'value'] },
   BLIND_BELOW: { label: 'Otwarcie rolety <', fields: ['elementId', 'value'] },
 };

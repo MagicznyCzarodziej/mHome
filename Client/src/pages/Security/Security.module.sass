@@ -13,10 +13,41 @@
   color: $cGray200
 
 .history
-  padding-top: 1rem
+  padding: 1rem
 .history__entry
   color: $cGray500
   padding: 0.2rem 0
+  margin-bottom: 0.2rem
+.entry--desktop
+  font-size: 1.5rem
+  margin-bottom: 0.2rem
+.history__label
+  font-size: 1.5rem
+  color: $cGray500
+  margin-bottom: 1rem
+.entry__date
+  font-size: 0.8rem
+
+.filters
+  display: flex
+  align-items: center
+  gap: 0.5rem
+  margin-bottom: 0.5rem
+  flex-wrap: wrap
+.history--desktop
+  display: flex
+  gap: 0 0.5rem
+.filters__label
+  color: $cGray200
+.filters__field
+  color: $cWhite
+  font-size: 1rem
+  border: 2px solid $cGray700
+  background-color: $cGray800
+  width: 9rem
+  padding: 0.1rem
+  &::-webkit-calendar-picker-indicator
+    filter: invert(1)
 
 .loadMore
   margin-top: auto

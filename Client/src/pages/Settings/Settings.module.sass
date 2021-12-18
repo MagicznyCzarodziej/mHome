@@ -2,6 +2,9 @@
 
 .settings
   padding: 0 1rem
+  height: calc(100% - 4px)
+  display: flex
+  flex-direction: column
 .setting
   padding: 1rem 0
   display: flex
@@ -33,3 +36,21 @@
       color: cGray300
 .setting__control--short
   width: 3rem
+
+.about
+  margin-top: auto
+  border-top: 1px solid $cGray700
+  padding: 1rem
+  display: flex
+  flex-direction: column
+  justify-content: center
+  color: $cGray400
+  font-size: 0.8rem
+  text-align: justify
+  line-height: 1rem
+.about__people
+  margin-top: 1rem
+  display: grid
+  grid-template-columns: 1fr auto
+.about__label
+  color: $cGray500

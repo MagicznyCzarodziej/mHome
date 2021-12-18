@@ -24,7 +24,7 @@ export type ScenarioConditionType =
   | 'TIME'
   | 'TIME_BEFORE'
   | 'TIME_AFTER'
-  | 'LIGHT'
+  | 'LIGHT_STATE'
   | 'BLIND_ABOVE'
   | 'BLIND_BELOW';
 

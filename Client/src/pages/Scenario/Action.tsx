@@ -134,7 +134,11 @@ export const Action = (props: {
                     });
                   }}
                 >
-                  {action.payload?.value}
+                  {action.type?.includes('LIGHT')
+                    ? action.payload?.value === 'ON'
+                      ? 'WŁĄCZONE'
+                      : 'WYŁĄCZONE'
+                    : action.payload?.value}
                 </div>
               </div>
             ),

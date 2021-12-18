@@ -82,6 +82,18 @@ export const Settings = () => {
             ºC
           </div>
         </div>
+        <div className={styles.about}>
+          <div>
+            Niniejszy system sterowania inteligentym domem powstał w ramach
+            pracy inżynierskiej na Politechnice Lubelskiej.
+          </div>
+          <div className={styles.about__people}>
+            <div className={styles.about__label}>Autor:</div>
+            <div className={styles.about__label}>Promotor:</div>
+            <div>Przemysław Pitus</div>
+            <div>dr inż Tomasz Szymczyk</div>
+          </div>
+        </div>
       </div>
     </DefaultLayout>
   );

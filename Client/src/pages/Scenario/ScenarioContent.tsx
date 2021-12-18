@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 
 import styles from './Scenario.module.sass';
 
@@ -21,6 +21,7 @@ export const ScenarioContent = () => {
             {editing ? (
               <div className={styles.name__control}>
                 <input
+                  className={styles.scenario__input}
                   value={updatedScenario?.name}
                   onChange={(event) => {
                     setUpdatedScenario((draft) => {
@@ -37,7 +38,8 @@ export const ScenarioContent = () => {
             {editing ? (
               <div className={styles.name__control}>
                 <input
-                  value={scenario.description}
+                  className={styles.scenario__input}
+                  value={updatedScenario?.description}
                   onChange={(event) => {
                     setUpdatedScenario((draft) => {
                       draft!.description = event.target.value;
