@@ -1,12 +1,17 @@
+import { Service } from 'typedi';
 import SerialPort from 'serialport';
 // eslint-disable-next-line
 const ReadLine = require('@serialport/parser-readline');
 import chalk from 'chalk';
 
 import { Logger } from 'app/utils/Logger';
-import { SerialMessage } from 'app/SerialCommunicator/SerialMessage';
+import {
+  SerialMessage,
+  SerialMessageType,
+} from 'app/SerialCommunicator/SerialMessage';
 import { SerialCommunicatorObserver } from 'app/interfaces/SerialCommunicatorObserver';
 
+@Service()
 export class SerialCommunicator {
   port: SerialPort;
   parser: SerialPort.parsers.Readline;
@@ -15,41 +20,48 @@ export class SerialCommunicator {
   constructor(
     private logger: Logger,
     private serialPath: string,
-    private baudRate: number
+    private baudRate: number,
   ) {}
 
   public async init() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.port = new SerialPort(
         this.serialPath,
         { baudRate: this.baudRate },
         (error) => {
-          if (error)
+          if (error) {
             this.logger.error(
-              `Cannot open serial port ${this.serialPath} (${error})`
+              `Cannot open serial port ${this.serialPath} (${error})`,
             );
-          reject();
-        }
+            reject(error);
+          }
+        },
       );
       this.parser = this.port.pipe(new ReadLine({ delimiter: '\n' }));
 
       this.port.on('open', () => {
-        this.logger.info('SerialPort open');
-        resolve();
+        // Serial port is open, but may not be ready to receive commands yet
+        this.logger.info('SerialPort open, waiting for READY');
       });
 
       // Received data from serial port
       this.parser.on('data', (data: string) => {
-        this.logger.info(
-          `Received message: ${chalk.magenta(
-            SerialMessage.fromString(data).toString(true)
-          )} (original: ${data.trim()})`
-        );
-
-        // Notify all observers
         try {
           const message = SerialMessage.fromString(data);
-          this.notify(message);
+          this.logger.info(
+            `Received message: ${chalk.magenta(
+              message.toString(true),
+            )} (original: ${data.trim()})`,
+          );
+
+          if (message.type === SerialMessageType.CMD_READY) {
+            // If Arduino is ready to receive commands resolve promise
+            this.logger.info('SerialPort ready');
+            resolve();
+          } else {
+            // Notify all observers
+            this.notify(message);
+          }
         } catch (error) {
           this.logger.error(error);
           this.logger.error('Invalid message: ' + data);

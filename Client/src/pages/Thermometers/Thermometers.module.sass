@@ -1,0 +1,31 @@
+@import '~assets/styles/variables'
+
+.thermometers
+  padding: 0 1rem
+  +noSelect
+  a
+    text-decoration: none
+
+.thermometer
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 0.5rem 1rem
+  min-height: 2.5rem
+  border-bottom: 1px solid $cGray800
+  font-size: 1.2rem
+  &__label
+    color: $cGray500
+
+.temperature
+  &--low
+    color: $cBlue500
+    text-shadow: 0 0 2px $cBlue500
+
+  &--medium
+    color: $cGreen500
+    text-shadow: 0 0 2px $cGreen500
+
+  &--high
+    color: $cRed300
+    text-shadow: 0 0 2px $cRed300

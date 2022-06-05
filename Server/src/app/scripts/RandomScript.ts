@@ -3,6 +3,7 @@ import { Container } from 'typedi';
 import { SerialCommunicator } from 'app/SerialCommunicator/SerialCommunicator';
 import {
   SerialMessage,
+  SerialMessageSource,
   SerialMessageType,
 } from 'app/SerialCommunicator/SerialMessage';
 import { Script } from './ScriptInterface';
@@ -13,15 +14,16 @@ export class RandomScript implements Script {
 
   public async execute() {
     const serialCommunicator = Container.get(SerialCommunicator);
-    const light = await database.light.findOne({
+    const light = await database.light.findUnique({
       where: { id: 0 },
       select: { state: true },
     });
 
     const message = new SerialMessage(
+      SerialMessageSource.SCRIPT,
       SerialMessageType.LIGHT_SET,
       0,
-      light?.state === 'ON' ? 0 : 1
+      light?.state === 'ON' ? 0 : 1,
     );
     serialCommunicator.send(message);
   }

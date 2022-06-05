@@ -1,0 +1,25 @@
+@import '~assets/styles/variables'
+
+.chartContainer
+  padding: 1rem
+.periodButtons
+  display: grid
+  grid-template-columns: repeat(4, 1fr)
+  padding: 1rem 0
+
+.periodButton
+  all: unset
+  text-align: center
+  display: grid
+  place-items: center
+  color: $cGray500
+  height: 3rem
+  flex-grow: 1
+  flex-shrink: 0
+  transition: 0.1s
+  &:not(:last-child)
+    border-right: 1px solid $cGray700
+  &__active
+    color: $cGreen500
+    font-size: 1.2rem
+    text-shadow: 0 0 2px $cGreen500

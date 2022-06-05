@@ -1,0 +1,206 @@
+@import '~assets/styles/variables'
+
+.dashboard
+  padding: 0 1rem
+  +noSelect
+
+.dashboard__temperatures
+  display: grid
+  padding: 1rem 0
+  border-bottom: 1px solid $cGray800
+  font-size: 1.25rem
+  grid-template-columns: auto auto auto
+
+.temperature
+  text-align: center
+
+  &__label
+    margin-top: 0.2rem
+    color: $cGray400
+    text-shadow: none
+    font-size: 1rem
+
+  &--low
+    color: $cBlue500
+    text-shadow: 0 0 2px $cBlue500
+
+  &--medium
+    color: $cGreen500
+    text-shadow: 0 0 2px $cGreen500
+
+  &--high
+    color: $cRed300
+    text-shadow: 0 0 2px $cRed300
+
+.dashboard__grid
+  display: grid
+  grid-template-rows: repeat(3, 1fr)
+  grid-template-columns: repeat(3, 1fr)
+  place-items: center
+
+// Grid item
+$distanceFromBorder: 0.5rem
+
+.grid__tile
+  overflow: hidden
+  width: 100%
+  height: calc(33.333vw - #{$distanceFromBorder})
+  border-bottom: 1px solid $cGray800
+  border-left: 1px solid $cGray800
+
+  &:nth-child(3n+1)
+    border-left: none
+
+  &>div
+    position: relative
+    position: relative
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    height: 100%
+    transition: 0.1s
+
+  &>div::before
+    position: absolute
+    left: -101%
+    display: block
+    width: 100%
+    height: 100%
+    background-color: $cGreen500
+    content: ''
+
+  &>div::after
+    position: absolute
+    top: 0
+    left: 101%
+    display: block
+    width: 100%
+    height: 100%
+    background-color: $cRed500
+    content: ''
+
+.tile__label
+  margin: 0.25rem 0
+  color: $cGray500
+  font-size: 0.75rem
+
+.tile__icon
+  padding: 0
+  color: $cGray500
+
+  &--active
+    color: $cGreen500
+
+.tile__lights
+  position: absolute
+  bottom: $distanceFromBorder
+  left: $distanceFromBorder
+
+.light-dot
+  display: inline-block
+  margin-right: 0.4rem
+  width: 7px
+  height: 7px
+  border-radius: 50%
+  background-color: $cGreen500
+
+.tile__reeds
+  position: absolute
+  right: $distanceFromBorder
+  bottom: $distanceFromBorder
+
+.reed-dot
+  display: inline-block
+  margin-right: 0.8rem
+  width: 4px
+  height: 7px
+  border-top-left-radius: 7px * 2
+  border-bottom-left-radius: 7px * 2
+  background-color: $cRed300
+
+  &::after
+    display: block
+    margin-left: 0.4rem
+    width: 4px
+    height: 7px
+    border-top-right-radius: 7px * 2
+    border-bottom-right-radius: 7px * 2
+    background-color: $cRed300
+    content: ''
+
+.tile__lock
+  position: absolute
+  top: $distanceFromBorder
+  right: $distanceFromBorder
+
+  &--locked
+    color: $cGreen500
+
+  &--unlocked
+    color: $cRed300
+
+// Spacer
+.dashboard__spacer
+  display: flex
+  justify-content: center
+  align-items: center
+  padding: 1rem 0
+  height: 2.2rem
+  color: $cGray500
+  gap: 1rem
+
+.dashboard__controls
+  display: grid
+  border-top: 1px solid $cGray800
+  grid-template-columns: 1fr 1fr 1fr
+
+.controls__item
+  padding: 1rem 0
+
+.controls__buttons
+  display: flex
+  justify-content: center
+  align-items: center
+  color: $cGray500
+  gap: 2rem
+
+  svg
+    transition: 0.5s
+
+  svg:active
+    color: $cGreen500
+    transition: 0s
+    transform: scale(1.2)
+
+  &:nth-child(2)
+    border-right: 1px solid $cGray800
+    border-left: 1px solid $cGray800
+
+.controls__label
+  margin-top: 0.75rem
+  text-align: center
+  font-size: 0.75rem
+  color: $cGray500
+
+@media (min-width: 600px)
+  .dashboard
+    height: 100%
+    display: flex
+    flex-direction: column
+  .dashboard__grid
+    flex-grow: 1
+    grid-template-rows: repeat(3, 1fr)
+    grid-template-columns: repeat(3, 1fr)
+  .grid__tile
+    width: 100%
+    height: 100%
+
+  .tile__icon
+    margin-top: 1rem
+
+  .tile__label
+    margin-bottom: 1rem
+
+  .dashboard__spacer
+    display: none

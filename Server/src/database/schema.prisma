@@ -42,43 +42,64 @@ model Thermometer {
   groupId           String?
 }
 
+model Temperature {
+  id            Int         @id @default(autoincrement())
+  value         Float
+  timestamp     DateTime    @default(now())
+  thermometer   Thermometer @relation(fields: [thermometerId], references: [id])
+  thermometerId Int
+}
+
 model Blinds {
   id          Int      @id
   name        String
   description String?
-  state       Int /// 0-100 where 0 is fully closed and 100 is fully open
+  position    Int /// 0-100 where 0 is fully closed and 100 is fully open
+  status      String   @default("IDLE") /// IDLE, MOVING_UP, MOVING_DOWN
   group       Group?   @relation(fields: [groupId], references: [id])
   groupId     String?
   updatedAt   DateTime @updatedAt
 }
 
 model Reed {
-  id          Int      @id
+  id          Int           @id
   name        String
   description String?
-  state       Int /// 0-100 where 0 is fully closed and 100 is fully open
-  group       Group?   @relation(fields: [groupId], references: [id])
+  state       String        @default("CLOSED") /// OPEN or CLOSED
+  group       Group?        @relation(fields: [groupId], references: [id])
   groupId     String?
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime      @updatedAt
+  history     ReedHistory[]
 }
 
-//
-
-model Temperature {
-  id            Int         @id @default(autoincrement())
-  value         Float
-  datetime      DateTime    @default(now())
-  thermometer   Thermometer @relation(fields: [thermometerId], references: [id])
-  thermometerId Int
+model ReedHistory {
+  id        Int      @id @default(autoincrement())
+  state     String /// OPEN or CLOSED
+  timestamp DateTime @default(now())
+  reed      Reed     @relation(fields: [reedId], references: [id])
+  reedId    Int
 }
 
-//
+model Scenario {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  active      Boolean
+  entries     String /// Serialized JSON
+}
 
 /// Log every client connection
 model Connection {
-  id             Int       @id
+  id             Int       @id @default(autoincrement())
   ip             String
-  client         String
   connectedAt    DateTime  @default(now())
   disconnectedAt DateTime?
+}
+
+model History {
+  id        Int      @id @default(autoincrement())
+  source    String
+  eventType String
+  payload   String /// Serialized JSON
+  timestamp DateTime @default(now())
 }
