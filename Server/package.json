@@ -30,7 +30,7 @@
     "serialport": "^8.0.7",
     "socket.io": "^3.1.2",
     "socket.io-client": "4.0.0",
-    "sqlite3": "^5.0.0",
+    "sqlite3": "^5.0.3",
     "sunrise-sunset-js": "^2.2.1",
     "ts-node-dev": "^1.1.8",
     "tsconfig-paths": "^3.11.0",
